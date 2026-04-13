@@ -1,0 +1,242 @@
+/* exercicios.css */
+
+:root {
+    /* Herda as suas variáveis ou define se o arquivo for separado */
+    --primary: #07c088;
+    --primary-dark: #068660;
+    --text-main: #3c3c3c;
+    --border-color: #e5e5e5;
+    --error: #ff4b4b;
+    --bg-fundo: #ffffff;
+}
+
+body {
+    background-color: var(--bg-fundo);
+    font-family: 'Segoe UI', sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
+
+/* Container do Exercício */
+.exercicio-container {
+    width: 100%;
+    max-width: 600px;
+    text-align: center;
+    padding: 20px;
+}
+
+.pergunta-titulo {
+    font-size: 1.8rem;
+    color: var(--text-main);
+    margin-bottom: 40px;
+    font-weight: 800;
+}
+
+/* Opções de Resposta */
+.opcoes-lista {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-bottom: 50px;
+}
+
+.opcao-btn {
+    background-color: white;
+    border: 2px solid var(--border-color);
+    border-bottom: 5px solid var(--border-color);
+    border-radius: 15px;
+    padding: 18px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text-main);
+    cursor: pointer;
+    transition: all 0.1s;
+    text-align: left;
+}
+
+.opcao-btn:hover {
+    background-color: #f7f7f7;
+}
+
+/* Quando a opção é selecionada (antes de verificar) */
+.opcao-btn.selected {
+    border-color: #1cb0f6;
+    background-color: #ddf4ff;
+    color: #1899d6;
+}
+
+/* Footer de Verificação (Estilo Duo) */
+.footer-verificacao {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    padding: 30px;
+    border-top: 2px solid var(--border-color);
+    display: flex;
+    justify-content: center;
+    background-color: white;
+}
+
+.btn-verificar {
+    width: 100%;
+    max-width: 250px;
+    padding: 16px;
+    border-radius: 15px;
+    border: none;
+    background-color: var(--primary);
+    color: white;
+    font-weight: 800;
+    font-size: 1rem;
+    text-transform: uppercase;
+    cursor: pointer;
+    border-bottom: 4px solid var(--primary-dark);
+}
+
+.btn-verificar:active {
+    transform: translateY(2px);
+    border-bottom-width: 2px;
+}
+
+/* Feedback de Erro */
+.btn-verificar.errado {
+    background-color: var(--error);
+    border-bottom-color: #c93333;
+}
+/* Modal de Feedback */
+.modal-feedback {
+    position: fixed;
+    bottom: -150px; /* Começa escondido abaixo da tela */
+    left: 0;
+    width: 100%;
+    padding: 30px;
+    background-color: white;
+    border-top: 2px solid var(--border-color);
+    transition: bottom 0.3s ease-in-out;
+    z-index: 100;
+}
+
+.modal-feedback.show {
+    bottom: 0; /* Desliza para cima */
+}
+
+/* Estilo quando ACERTA */
+.modal-feedback.correto {
+    background-color: #d7ffb8;
+    border-top-color: #58cc02;
+}
+.modal-feedback.correto h2, .modal-feedback.correto i {
+    color: #58cc02;
+}
+
+/* Estilo quando ERRA */
+.modal-feedback.errado {
+    background-color: #ffdfe0;
+    border-top-color: var(--error);
+}
+.modal-feedback.errado h2, .modal-feedback.errado i {
+    color: var(--error);
+}
+
+.modal-content {
+    max-width: 600px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.feedback-info {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.feedback-info i {
+    font-size: 2rem;
+}
+
+.grid-opcoes {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+    margin-top: 30px;
+}
+
+.card-opcao {
+    background: white;
+    border: 2px solid #e5e5e5;
+    border-bottom: 5px solid #e5e5e5; /* Efeito 3D */
+    border-radius: 15px;
+    padding: 20px;
+    cursor: pointer;
+    transition: all 0.1s;
+    text-align: center;
+}
+
+.card-opcao:hover {
+    background-color: #f7f7f7;
+}
+
+.card-opcao.selected {
+    border-color: #84d8ff;
+    background-color: #ddf4ff;
+    border-bottom-width: 2px;
+    transform: translateY(3px); /* Efeito de clique */
+}
+
+.nota-musical {
+    font-size: 3.5rem;
+    display: block;
+    margin-bottom: 10px;
+    color: #4b4b4b;
+}
+/* Aplica a fonte de música apenas onde precisa */
+.nota-musical {
+    font-family: 'Noto Music', sans-serif;
+    font-size: 4rem;
+    display: block;
+    margin-bottom: 10px;
+    color: #4b4b4b;
+}
+
+/* Grid de Cartões estilo Duolingo */
+.grid-opcoes {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.card-opcao {
+    background: white;
+    border: 2px solid #e5e5e5;
+    border-bottom: 6px solid #e5e5e5; /* Sombra 3D */
+    border-radius: 15px;
+    padding: 20px;
+    cursor: pointer;
+    transition: all 0.1s ease;
+    text-align: center;
+}
+
+/* Efeito ao passar o mouse */
+.card-opcao:hover {
+    background-color: #f7f7f7;
+    border-color: #cecece;
+}
+
+/* Quando o cartão é selecionado */
+.card-opcao.selected {
+    border-color: #84d8ff;
+    background-color: #ddf4ff;
+    border-bottom-width: 2px;
+    transform: translateY(4px); /* Botão afunda ao selecionar */
+    color: #1899d6;
+}
+
+.card-opcao.selected .nota-musical {
+    color: #1899d6;
+}

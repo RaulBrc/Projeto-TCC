@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trituno - Lição 1</title>
+    <link rel="stylesheet" href="../css/exercicios.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Music&display=swap" rel="stylesheet">
+</head>
+<body data-licao="trituno_licao_1">
+
+    <main class="exercicio-container">
+        <div id="progresso-interno" style="width: 100%; height: 12px; background: #e5e5e5; border-radius: 10px; margin-bottom: 30px; overflow: hidden;">
+            <div id="barra-interna" style="width: 0%; height: 100%; background: #07c088; transition: width 0.4s ease;"></div>
+        </div>
+
+        <div class="tela-exercicio" id="tela1">
+            <h1 class="pergunta-titulo">Qual o nome desta figura?</h1>
+            <div class="nota-musical" style="font-size: 100px; margin-bottom: 20px;">&#x1D15D;</div> 
+            <div class="opcoes-lista">
+                <button class="opcao-btn" onclick="selecionar(this, 'correta')">Semibreve</button>
+                <button class="opcao-btn" onclick="selecionar(this)">Mínima</button>
+                <button class="opcao-btn" onclick="selecionar(this)">Semínima</button>
+            </div>
+        </div>
+
+        <div class="tela-exercicio" id="tela2" style="display: none;">
+            <h1 class="pergunta-titulo">Toque na <strong>Semínima</strong>:</h1>
+            <div class="grid-opcoes">
+                <div class="card-opcao" onclick="selecionar(this)">
+                    <span class="nota-musical">&#x1D15D;</span>
+                </div>
+
+                <div class="card-opcao" onclick="selecionar(this, 'correta')">
+                    <span class="nota-musical">&#x1D15F;</span>
+                </div>
+
+                <div class="card-opcao" onclick="selecionar(this)">
+                    <span class="nota-musical">&#x1D15E;</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="tela-exercicio" id="tela3" style="display: none;">
+            <h1 class="pergunta-titulo">Qual figura vale 2 tempos?</h1>
+            <div class="opcoes-lista">
+                <button class="opcao-btn" onclick="selecionar(this, 'correta')">Mínima ( &#x1D15E; )</button>
+                <button class="opcao-btn" onclick="selecionar(this)">Semibreve ( &#x1D15D; )</button>
+                <button class="opcao-btn" onclick="selecionar(this)">Semínima ( &#x1D15F; )</button>
+            </div>
+        </div>
+
+        <div class="tela-exercicio" id="tela4" style="display: none;">
+            <h1 class="pergunta-titulo">Qual destas figuras tem o <strong>maior</strong> valor?</h1>
+            <div class="grid-opcoes">
+                <div class="card-opcao" id="correta" onclick="selecionar(this, 'correta')">
+                    <span class="nota-musical">&#x1D15D;</span> <p>Semibreve</p>
+                </div>
+                <div class="card-opcao" onclick="selecionar(this)">
+                    <span class="nota-musical">&#x1D15E;</span> <p>Mínima</p>
+                </div>
+                <div class="card-opcao" onclick="selecionar(this)">
+                    <span class="nota-musical">&#x1D15F;</span> <p>Semínima</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="tela-exercicio" id="tela5" style="display: none;">
+            <h1 class="pergunta-titulo">Duas <strong>Mínimas ( &#x1D15E; + &#x1D15E; )</strong> equivalem a uma:</h1>
+            <div class="opcoes-lista">
+                <button class="opcao-btn" onclick="selecionar(this, 'correta')">Semibreve ( &#x1D15D; )</button>
+                <button class="opcao-btn" onclick="selecionar(this)">Semínima ( &#x1D15F; )</button>
+            </div>
+        </div>
+
+        <div class="tela-exercicio" id="tela6" style="display: none;">
+            <h1 class="pergunta-titulo">Toque na figura que vale apenas <strong>1 tempo</strong>:</h1>
+            <div class="grid-opcoes">
+                <div class="card-opcao" onclick="selecionar(this)">
+                    <span class="nota-musical">&#x1D15E;</span>
+                    <p>Mínima</p>
+                </div>
+
+            <div class="card-opcao" onclick="selecionar(this)">
+                <span class="nota-musical">&#x1D15D;</span>
+                <p>Semibreve</p>
+            </div>
+
+            <div class="card-opcao" id="correta" onclick="selecionar(this, 'correta')">
+                <span class="nota-musical">&#x1D15F;</span>
+                <p>Semínima</p>
+            </div>
+        </div>
+    </div>   
+</div>
+    </main>
+
+    <footer class="footer-verificacao">
+        <button class="btn-verificar" onclick="verificarPasso()">Verificar</button>
+    </footer>
+
+    <div id="feedbackModal" class="modal-feedback">
+        <div class="modal-content">
+            <div class="feedback-info">
+                <i id="feedbackIcon" class="fa-solid"></i>
+                <h2 id="feedbackMsg"></h2>
+            </div>
+            <button id="btnContinuar" class="btn-verificar" onclick="proximaAcao()">Continuar</button>
+        </div>
+    </div>
+
+    <script src="../js/exercicios.js"></script>
+</body>
+</body>
+</html>

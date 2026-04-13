@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trituno - Lições</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="../css/licoes.css">
+</head>
+<body class="page-licoes">
+
+    <aside class="sidebar">
+        <div class="logo">
+            <h1>TRITUNO</h1>
+        </div>
+        
+        <nav class="menu">
+            <a href="#" class="active"><i class="fa-solid fa-house"></i> APRENDER</a>
+            <a href="#"><i class="fa-solid fa-user"></i> PERFIL</a>
+            <a href="#"><i class="fa-solid fa-gear"></i> CONFIGURAÇÕES</a>
+        </nav>
+
+        <div class="user-progress">
+            <p>Progresso Geral</p>
+            <div class="progress-bar">
+                <div id="progressFill" class="progress-fill" style="width: 0%;"></div>
+            </div>
+            <span id="progressText" class="progress-text">0% concluído</span>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <header class="top-status">
+            <div class="status-item vidas">
+                <i class="fa-solid fa-heart"></i> 5
+            </div>
+            <div class="status-item cristais">
+                <i class="fa-solid fa-gem"></i> 120
+            </div>
+        </header>
+
+        <section class="trilha">
+            <div class="unidade-info">
+                <h2>Iniciante: Teoria Musical</h2>
+                <span>MÓDULO 1</span>
+            </div>
+
+            <nav class="caminho">
+                <a href="../modulo1/exercicio1.html" class="node" id="node-1">
+                    <i class="fa-solid fa-music"></i>
+                </a>
+                
+                <a href="../modulo1/exercicio2.html" class="node locked" id="node-2">
+                    <i class="fa-solid fa-lock"></i>
+                </a>
+                
+                <a href="../modulo1/exercicio3.html" class="node locked" id="node-3">
+                    <i class="fa-solid fa-lock"></i>
+                </a>
+
+                <a href="../modulo1/exercicio4.html" class="node locked" id="node-4">
+                    <i class="fa-solid fa-lock"></i>
+                </a>
+
+                <div class="node-end">
+                    <i class="fa-solid fa-trophy"></i>
+                </div>
+            </nav>
+        </section>
+    </main>
+
+    <script src="../js/licoes.js"></script>
+</body>
+</html>

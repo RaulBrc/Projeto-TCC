@@ -1,0 +1,362 @@
+:root {
+    --primary: #07c088;
+    --primary-dark: #068660;
+    --text-main: #3c3c3c;
+    --text-secondary: #afafaf;
+    --bg: #ffffff;
+    --input-bg: #f7f7f7;
+    --border-color: #e5e5e5;
+    --error: #ff4b4b;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background-image: url('../images/fundo-home.png');
+    
+    /* Configurações essenciais para o fundo */
+    background-size: cover;      /* Faz a imagem cobrir todo o espaço disponível */
+    background-position: center; /* Centraliza a imagem (evita cortes estranhos) */
+    background-repeat: no-repeat;/* Impede que a imagem fique se repetindo */
+    background-attachment: fixed;/* Mantém o fundo parado ao rolar a página (opcional) */
+
+    /* Suas configurações de layout */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    margin: 0; /* Garante que não haja bordas brancas indesejadas */
+}
+
+.login-container {
+    width: 100%;
+    max-width: 400px;
+    padding: 20px;
+    animation: slideUp 0.5s ease-out;
+}
+
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.logo-area {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.logo-area h1 {
+    color: var(--primary);
+    font-size: 2.8rem;
+    font-weight: 800;
+}
+
+.logo-area p {
+    color: var(--text-secondary);
+    font-size: 1.1rem;
+}
+
+/* Box de Login */
+.auth-box {
+    border: 2px solid var(--border-color);
+    border-bottom: 5px solid var(--border-color);
+    border-radius: 20px;
+    padding: 30px;
+    margin-bottom: 20px;
+}
+
+.input-group {
+    margin-bottom: 20px;
+}
+
+.input-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #777;
+}
+
+input {
+    width: 100%;
+    padding: 14px;
+    border: 2px solid var(--border-color);
+    border-radius: 15px;
+    background-color: var(--input-bg);
+    font-size: 1rem;
+    outline: none;
+    transition: all 0.2s;
+}
+
+input:focus {
+    border-color: var(--primary);
+    background-color: #fff;
+}
+
+/* Password Toggle */
+.password-wrapper {
+    position: relative;
+}
+
+.toggle-password {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: var(--text-secondary);
+}
+
+.toggle-password:hover {
+    color: var(--primary);
+}
+
+/* Botão Estilizado */
+.btn-login {
+    width: 100%;
+    padding: 16px;
+    background-color: var(--primary);
+    color: white;
+    border: none;
+    border-bottom: 4px solid var(--primary-dark);
+    border-radius: 15px;
+    font-size: 1rem;
+    font-weight: 800;
+    cursor: pointer;
+    transition: transform 0.1s, filter 0.2s;
+}
+
+.btn-login:active {
+    transform: translateY(2px);
+    border-bottom-width: 2px;
+}
+
+.btn-login:hover {
+    filter: brightness(1.05);
+}
+
+.forgot-password {
+    display: block;
+    text-align: center;
+    margin-top: 20px;
+    color: #1cb0f6; /* Azul para links */
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 0.9rem;
+}
+
+/* Rodapé / Registro */
+.register-box {
+    border: 2px solid var(--border-color);
+    border-radius: 20px;
+    padding: 20px;
+    text-align: center;
+}
+
+.register-box a {
+    color: var(--primary);
+    text-decoration: none;
+    font-weight: 800;
+    margin-left: 5px;
+}
+
+.error-message {
+    color: var(--error);
+    font-size: 0.75rem;
+    display: none;
+    margin-top: 5px;
+    font-weight: 600;
+}
+
+/* =========================================
+   Estilos Específicos para a Home (Trituno)
+   ========================================= */
+
+/* Container Principal da Home */
+.home-container {
+    width: 100%;
+    max-width: 500px; /* Largura máxima em mobile */
+    padding: 40px 20px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Centraliza horizontalmente os filhos */
+    justify-content: center; /* Centraliza verticalmente o conteúdo no body */
+    gap: 40px; /* Espaço entre a seção hero e as ações */
+}
+
+/* Seção Hero (Ícone + Texto) */
+.hero-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Centraliza o ícone e o texto horizontalmente */
+    width: 100%;
+}
+
+/* Container do Ícone para animação centralizada */
+.hero-icon-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 120px; /* Espaço reservado para o ícone flutuar */
+    margin-bottom: 10px;
+}
+
+/* O Ícone em si */
+.hero-icon {
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: center;
+    /* Animação de flutuação suave estilo Duolingo */
+    animation: float 3s ease-in-out infinite;
+    display: inline-block; /* Necessário para transform funcionar bem */
+}
+
+/* Área do Texto (Título e Slogan) */
+.hero-section .logo-area {
+    text-align: center; /* Garante que o texto interno esteja centralizado */
+    margin-bottom: 0; /* Margem controlada pelo gap do container pai */
+}
+
+.hero-section .logo-area h1 {
+    color: var(--primary);
+    font-size: 3.2rem; /* Um pouco maior para destaque */
+    font-weight: 800;
+    letter-spacing: -1px; /* Toque moderno */
+}
+
+.hero-logo-img {
+    left: 50%;
+    transform: translateX(-20%);
+    width: 400px; /* Ajuste o tamanho conforme sua logo */
+    height: auto;
+    object-fit: contain; /* Garante que a imagem não distorça */
+}
+
+.hero-section .logo-area p {
+    color: var(--text-secondary);
+    font-size: 1.2rem;
+    max-width: 300px; /* Evita que o texto fique muito largo em tablets */
+    margin: 10px auto 0; /* Centraliza o parágrafo */
+}
+
+/* Seção de Botões */
+.home-actions.auth-box {
+    background-color: #ffffff67; /* Fundo branco para destacar */
+    padding: 40px 30px;        /* Espaço interno generoso */
+    width: 100%;
+    max-width: 400px;          /* Largura ideal para leitura e clique */
+    display: flex;
+    flex-direction: column;
+    gap: 20px;                 /* Espaço entre os botões */
+    
+    /* Reutilizando sua borda estilizada */
+    border: 1px solid var(--border-color);
+   
+    border-radius: 35px;       /* Bordas bem arredondadas (estilo amigável) */
+    
+    /* Sombra sutil para "flutuar" no fundo */
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.363);
+}
+
+.box-instruction {
+    color: var(--text-main);
+    font-weight: 700;
+    font-size: 1.1rem;
+    margin-bottom: 10px;
+    line-height: 1.3;
+}
+
+/* Botões Estilo Duolingo (Primary e Secondary) */
+.btn-primary, .btn-secondary {
+    display: block;
+    padding: 16px 20px;
+    border-radius: 15px;
+    font-size: 1rem;
+    font-weight: 800;
+    text-decoration: none;
+    text-align: center;
+    transition: filter 0.2s, transform 0.1s;
+    letter-spacing: 0.8px;
+    text-transform: uppercase; /* Padrão dos botões de ação */
+}
+
+.btn-primary {
+    background-color: var(--primary);
+    color: white;
+    border-bottom: 4px solid var(--primary-dark);
+}
+
+.btn-secondary {
+    background-color: #fff;
+    color: #1cb0f6; /* Azul Duolingo para o link secundário */
+    border: 2px solid var(--border-color);
+    border-bottom: 4px solid var(--border-color);
+}
+
+/* Efeitos de Clique */
+.btn-primary:active, .btn-secondary:active {
+    transform: translateY(2px);
+    border-bottom-width: 2px;
+}
+
+/* Efeito de Hover */
+.btn-primary:hover, .btn-secondary:hover {
+    filter: brightness(1.05);
+}
+
+/* Animação de Flutuação */
+@keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-15px); }
+}
+
+/* Ajuste Responsivo para Desktops */
+@media (min-width: 768px) {
+    .home-container {
+        max-width: 900px;
+        flex-direction: row; /* Lado a lado no desktop */
+        justify-content: space-around;
+        text-align: left;
+    }
+    
+    .hero-section {
+        align-items: flex-start; /* Alinha à esquerda no desktop */
+        max-width: 450px;
+    }
+
+    .hero-icon-container {
+        justify-content: flex-start; /* Ícone à esquerda no desktop */
+    }
+
+    .hero-section .logo-area {
+        text-align: left;
+    }
+    
+    .hero-section .logo-area p {
+        margin: 10px 0 0; /* Remove centralização automática */
+    }
+
+    .home-actions {
+        margin-top: 0;
+    }
+}
+
+#regError {
+    font-weight: bold;
+    font-size: 0.8rem;
+    margin-top: 8px;
+    /* Animação suave para aparecer */
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-5px); }
+    to { opacity: 1; transform: translateY(0); }
+}

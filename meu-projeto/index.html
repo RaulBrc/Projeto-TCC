@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TRITUNO | Login</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+
+    <main class="login-container">
+        <header class="logo-area">
+            <h1>Trituno</h1>
+            <p>Aprenda música de um jeito divertido.</p>
+        </header>
+
+        <section class="auth-box">
+            <form id="loginForm">
+                <div class="input-group">
+                    <label for="email">E-MAIL</label>
+                    <input type="email" id="email" placeholder="Digite seu e-mail" required>
+                </div>
+
+                <div class="input-group">
+                    <label for="password">SENHA</label>
+                    <div class="password-wrapper">
+                        <input type="password" id="password" placeholder="Mínimo 8 caracteres" required>
+                        <i class="fas fa-eye toggle-password" id="eyeIcon"></i>
+                    </div>
+                    <small class="error-message" id="passError">A senha precisa de pelo menos 8 caracteres.</small>
+                </div>
+
+                <button type="submit" class="btn-login">Entrar</button>
+            </form>
+            <a href="#" class="forgot-password">ESQUECI A SENHA</a>
+        </section>
+
+        <footer class="register-box">
+            <p>Não tem uma conta?<a href="../meu-projeto/Registro.html">Crie agora</a></p>
+        </footer>
+    </main>
+
+    <script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+  import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBrRC9ZETyyJlQncMkAdfg-kfhf9KfG-uY",
+    authDomain: "trituno.firebaseapp.com",
+    projectId: "trituno",
+    storageBucket: "trituno.firebasestorage.app",
+    messagingSenderId: "401176009057",
+    appId: "1:401176009057:web:d4e8caa56a90f1d44c4d20",
+    measurementId: "G-3YJYY7TDKL"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+
+  // --- LÓGICA DO OLHINHO (DENTRO DO MÓDULO) ---
+  const togglePassword = document.querySelector('#eyeIcon');
+  const passwordInput = document.querySelector('#password');
+
+  if (togglePassword) {
+    togglePassword.addEventListener('click', () => {
+      // Troca o tipo do input
+      const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+      passwordInput.setAttribute('type', type);
+      
+      // Troca o ícone
+      togglePassword.classList.toggle('fa-eye');
+      togglePassword.classList.toggle('fa-eye-slash');
+    });
+  }
+
+  // --- LÓGICA DO LOGIN ---
+  const loginForm = document.getElementById('loginForm');
+  const passError = document.getElementById('passError');
+
+  loginForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const email = document.getElementById('email').value;
+    const senha = passwordInput.value;
+
+    // Validação simples de tamanho antes de enviar ao Firebase
+    if (senha.length < 8) {
+      passError.style.display = 'block';
+      return;
+    }
+
+    try {
+      await signInWithEmailAndPassword(auth, email, senha);
+      
+      // Verifique se o caminho para licoes.html está correto
+      window.location.href = "licoes.html"; 
+    } catch (error) {
+      console.error(error);
+      alert("Erro ao entrar: Verifique seu e-mail e senha.");
+    }
+  });
+
+  // Limpar erro ao digitar
+  passwordInput.addEventListener('input', () => {
+    if (passwordInput.value.length >= 8) {
+      passError.style.display = 'none';
+    }
+  });
+</script>
+</body>
+</html>

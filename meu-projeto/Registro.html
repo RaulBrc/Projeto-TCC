@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TRITUNO | Criar Conta</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="../css/style.css"> </head>
+<body>
+
+    <main class="login-container">
+        <header class="logo-area">
+            <h1>Trituno</h1>
+            <p>Comece sua jornada musical!</p>
+        </header>
+
+        <section class="auth-box">
+            <form id="registerForm" onsubmit="cadastrar(event)">
+                <div class="input-group">
+                    <label for="reg-email">E-MAIL</label>
+                    <input type="email" id="reg-email" placeholder="exemplo@email.com" required>
+                </div>
+
+                <div class="input-group">
+                    <label for="password">SENHA</label>
+                    <div class="password-wrapper">
+                    <input type="password" id="password" placeholder="Mínimo 8 caracteres" required>
+                    <i class="fas fa-eye toggle-password" id="eyeIcon"></i> </div>
+                </div>
+
+                <div class="input-group">
+                    <label for="confirm-password">CONFIRME SUA SENHA</label>
+                    <div class="password-wrapper">
+                    <input type="password" id="confirm-password" placeholder="Repita a senha" required>
+                    </div>
+                    <small class="error-message" id="regError" style="display: none; color: #ff4b4b;">As senhas não coincidem.</small>
+                </div>
+
+                <button type="submit" class="btn-login">Criar Conta</button>
+            </form>
+        </section>
+
+        <footer class="register-box">
+            <p>Já possui conta?<a href="../meu-projeto/index.html">Fazer Login</a></p>
+        </footer>
+    </main>
+
+    <script type="module">
+  // 1. Importando o que é necessário do Firebase
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+  import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+  // 2. Configurações
+  const firebaseConfig = {
+    apiKey: "AIzaSyBrRC9ZETyyJlQncMkAdfg-kfhf9KfG-uY",
+    authDomain: "trituno.firebaseapp.com",
+    projectId: "trituno",
+    storageBucket: "trituno.firebasestorage.app",
+    messagingSenderId: "401176009057",
+    appId: "1:401176009057:web:d4e8caa56a90f1d44c4d20",
+    measurementId: "G-3YJYY7TDKL"
+  };
+
+  // 3. Inicializando o Firebase
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+
+  // --- LÓGICA DO OLHINHO (NOVO) ---
+  const togglePassword = document.querySelector('#eyeIcon');
+  const passwordInput = document.querySelector('#password');
+  const confirmInput = document.querySelector('#confirm-password');
+
+  if (togglePassword) {
+    togglePassword.addEventListener('click', () => {
+      // Verifica se está oculto ou visível e alterna
+      const type = passwordInput.type === 'password' ? 'text' : 'password';
+      
+      passwordInput.type = type;
+      confirmInput.type = type;
+      
+      // Troca o desenho do ícone
+      togglePassword.classList.toggle('fa-eye');
+      togglePassword.classList.toggle('fa-eye-slash');
+    });
+  }
+
+  // 4. Função de Cadastro
+  window.cadastrar = async (event) => {
+    event.preventDefault();
+
+    // 1. Pegando os elementos
+    const email = document.getElementById('reg-email').value;
+    const senha = document.getElementById('password').value;
+    const confirmaSenha = document.getElementById('confirm-password').value;
+    const campoErro = document.getElementById('regError'); // O seu <small>
+
+    // 2. Limpar mensagens anteriores antes de validar
+    campoErro.style.display = 'none';
+    campoErro.style.color = '#ff4b4b'; // Vermelho vibrante
+
+    // 3. Validação: Senhas diferentes
+    if (senha !== confirmaSenha) {
+        campoErro.textContent = "As senhas não coincidem!";
+        campoErro.style.display = 'block';
+        return; 
+    }
+
+    // 4. Validação: Senha curta (Regra do Firebase)
+    if (senha.length < 6) {
+        campoErro.textContent = "A senha deve ter no mínimo 6 caracteres.";
+        campoErro.style.display = 'block';
+        return;
+    }
+
+    try {
+        // Se passar nas validações, tenta criar no Firebase
+        await createUserWithEmailAndPassword(auth, email, senha);
+        window.location.href = "../meu-projeto/index.html"; 
+    } catch (error) {
+        // Se o Firebase retornar erro (ex: email já existe)
+        console.error(error.code);
+        if (error.code === 'auth/email-already-in-use') {
+            campoErro.textContent = "Este e-mail já está em uso.";
+        } else {
+            campoErro.textContent = "Erro ao cadastrar. Tente novamente.";
+        }
+        campoErro.style.display = 'block';
+    }
+};
+</script>
+</body>
+</html>
