@@ -115,7 +115,7 @@
     try {
         // Se passar nas validações, tenta criar no Firebase
         await createUserWithEmailAndPassword(auth, email, senha);
-        window.location.href = "../meu-projeto/index.html"; 
+        window.location.href = "../meu-projeto/Registro.html"; 
     } catch (error) {
         // Se o Firebase retornar erro (ex: email já existe)
         console.error(error.code);
