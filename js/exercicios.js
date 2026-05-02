@@ -81,3 +81,19 @@ function atualizarBarraInterna() {
         barra.style.width = porcentagem + "%";
     }
 }
+
+function verificar(botao, eCorreto) {
+    const todosBotoes = document.querySelectorAll('.option-btn');
+    
+    // Desativa os botões para não clicar duas vezes
+    todosBotoes.forEach(btn => btn.style.pointerEvents = 'none');
+
+    if (eCorreto) {
+        botao.classList.add('correct');
+        // Aqui você pode tocar um som de "vitoria.mp3"
+        // E aumentar a barra de progresso
+    } else {
+        botao.classList.add('wrong');
+        // Som de "erro.mp3"
+    }
+}

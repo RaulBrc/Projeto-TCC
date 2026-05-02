@@ -1,6 +1,6 @@
 :root {
-    --primary: #07c088;
-    --primary-dark: #068660;
+    --primary: #d16207;
+    --primary-dark: #7c3b06;
     --text-main: #3c3c3c;
     --text-secondary: #afafaf;
     --bg: #ffffff;
@@ -144,7 +144,7 @@ input:focus {
     display: block;
     text-align: center;
     margin-top: 20px;
-    color: #1cb0f6; /* Azul para links */
+    color: var(--primary); /* Azul para links */
     text-decoration: none;
     font-weight: 700;
     font-size: 0.9rem;
@@ -295,7 +295,7 @@ input:focus {
 
 .btn-secondary {
     background-color: #fff;
-    color: #1cb0f6; /* Azul Duolingo para o link secundário */
+    color: var(--primary); /* Azul para o link secundário */
     border: 2px solid var(--border-color);
     border-bottom: 4px solid var(--border-color);
 }

@@ -2,8 +2,8 @@
 
 :root {
     /* Herda as suas variáveis ou define se o arquivo for separado */
-    --primary: #07c088;
-    --primary-dark: #068660;
+    --primary: #d16207;
+    --primary-dark: #7c3b06;
     --text-main: #3c3c3c;
     --border-color: #e5e5e5;
     --error: #ff4b4b;
@@ -63,9 +63,9 @@ body {
 
 /* Quando a opção é selecionada (antes de verificar) */
 .opcao-btn.selected {
-    border-color: #1cb0f6;
-    background-color: #ddf4ff;
-    color: #1899d6;
+    border-color: var(--primary);
+    background-color: #fff2da;
+    color: var(--primary-dark);
 }
 
 /* Footer de Verificação (Estilo Duo) */
@@ -230,13 +230,13 @@ body {
 
 /* Quando o cartão é selecionado */
 .card-opcao.selected {
-    border-color: #84d8ff;
-    background-color: #ddf4ff;
+    border-color: var(--primary);
+    background-color: #fab65c;
     border-bottom-width: 2px;
     transform: translateY(4px); /* Botão afunda ao selecionar */
-    color: #1899d6;
+    color: var(--primary-dark);
 }
 
 .card-opcao.selected .nota-musical {
-    color: #1899d6;
+    color: var(--primary-dark);
 }

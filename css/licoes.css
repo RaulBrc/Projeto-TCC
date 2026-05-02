@@ -1,7 +1,7 @@
 /* licoes.css */
 :root {
-    --primary: #07c088;
-    --primary-dark: #068660;
+    --primary: #d16207;
+    --primary-dark: #7c3b06;
     --text-main: #3c3c3c;
     --text-secondary: #afafaf;
     --bg: #ffffff;
@@ -68,9 +68,9 @@ body {
 }
 
 .menu a.active {
-    background-color: #ddf4ff;
-    color: #1899d6;
-    border: 2px solid #84d8ff;
+    background-color: #fff2da;
+    color: var(--primary);
+    border: 2px solid #fab65c;
 }
 
 /* 3. CONTEÚDO DA TRILHA */
