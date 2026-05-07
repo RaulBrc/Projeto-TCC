@@ -1,0 +1,119 @@
+:root {
+    /* Herda as suas variáveis ou define se o arquivo for separado */
+    --primary: #d16207;
+    --primary-dark: #7c3b06;
+    --text-main: #3c3c3c;
+    --border-color: #e5e5e5;
+    --error: #ff4b4b;
+    --bg-fundo: #ffffff;
+    --light-bg: #fff2da
+}
+
+
+body {
+    background-color: #fff;
+    color: #333;
+    font-family: 'Segoe UI', sans-serif;
+    margin: 0;
+}
+
+.aula-container {
+    max-width: 500px;
+    margin: 0 auto;
+    padding: 20px 20px 100px 20px; /* Espaço para o rodapé fixo */
+}
+
+.header-aula {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.voltar-btn { color: #afafaf; font-size: 1.5rem; text-decoration: none; }
+
+.card-aula {
+    display: flex;
+    align-items: center;
+    border: 2px solid #e5e5e5;
+    border-radius: 15px;
+    padding: 15px;
+    margin-bottom: 12px;
+    background: white;
+}
+
+/* Cores para ajudar na memorização */
+.lenta { border-left: 8px solid #58cc02; } /* Verde */
+.base { border-left: 8px solid #1cb0f6; }  /* Azul */
+.rapida { border-left: 8px solid #ffc800; } /* Amarelo */
+.veloz { border-left: 8px solid #ff4b4b; }  /* Vermelho */
+
+.nota-visual {
+    font-size: 3rem;
+    margin-right: 20px;
+    width: 50px;
+    text-align: center;
+    color: #4b4b4b;
+}
+
+.info strong { display: block; font-size: 1.1rem; }
+.info p { margin: 2px 0 0; color: #777; font-size: 0.9rem; }
+
+.pausa {
+    font-size: 3rem;
+    margin-right: 30px;
+    width: 50px;
+    text-align: center;
+    color: #4b4b4b;
+}
+
+.footer-aula {
+    position: fixed;
+    bottom: 0; left: 0;
+    width: 100%;
+    padding: 20px;
+    background: white;
+    border-top: 2px solid #e5e5e5;
+    display: flex;
+    justify-content: center;
+}
+
+.btn-finalizar {
+    background: var(--primary);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    padding: 15px;
+    width: 100%;
+    max-width: 400px;
+    font-weight: bold;
+    box-shadow: 0 4px 0 var(--primary-dark);
+    cursor: pointer;
+}
+
+.footer-aula {
+ position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    padding: 30px;
+    border-top: 2px solid var(--border-color);
+    display: flex;
+    justify-content: center;
+    background-color: white;
+}
+
+.btn-continuar {
+   width: 100%;
+    max-width: 250px;
+    padding: 16px;
+    border-radius: 15px;
+    border: none;
+    background-color: var(--primary);
+    color: white;
+    font-weight: 800;
+    font-size: 1rem;
+    text-transform: uppercase;
+    cursor: pointer;
+    border-bottom: 4px solid var(--primary-dark);
+}

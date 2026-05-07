@@ -8,6 +8,7 @@
     --border-color: #e5e5e5;
     --error: #ff4b4b;
     --bg-fundo: #ffffff;
+    --light-bg: #fff2da
 }
 
 body {
@@ -126,10 +127,10 @@ body {
 /* Estilo quando ACERTA */
 .modal-feedback.correto {
     background-color: #d7ffb8;
-    border-top-color: #58cc02;
+    border-top-color: var(--primary);
 }
 .modal-feedback.correto h2, .modal-feedback.correto i {
-    color: #58cc02;
+    color: var(--primary);
 }
 
 /* Estilo quando ERRA */
@@ -231,7 +232,7 @@ body {
 /* Quando o cartão é selecionado */
 .card-opcao.selected {
     border-color: var(--primary);
-    background-color: #fab65c;
+    background-color: var(--light-bg);
     border-bottom-width: 2px;
     transform: translateY(4px); /* Botão afunda ao selecionar */
     color: var(--primary-dark);
