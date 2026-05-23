@@ -49,6 +49,8 @@ function atualizarBarraVisual() {
     if (text) {
         text.innerText = porcentagem + "% concluído";
     }
+
+    localStorage.setItem('progress-bar', porcentagem);
 }
 
 // Inicia a configuração assim que a página de trilha carrega

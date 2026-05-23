@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TRITUNO | Login</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="/static/css/style.css">
 </head>
 <body>
 
@@ -25,10 +25,10 @@
                 <div class="input-group">
                     <label for="password">SENHA</label>
                     <div class="password-wrapper">
-                        <input type="password" id="password" placeholder="Mínimo 8 caracteres" required>
+                        <input type="password" id="password" placeholder="Mínimo 6 caracteres" required>
                         <i class="fas fa-eye toggle-password" id="eyeIcon"></i>
                     </div>
-                    <small class="error-message" id="passError">A senha precisa de pelo menos 8 caracteres.</small>
+                    <small class="error-message" id="passError">A senha precisa de pelo menos 6 caracteres.</small>
                 </div>
 
                 <button type="submit" class="btn-login">Entrar</button>
@@ -37,7 +37,7 @@
         </section>
 
         <footer class="register-box">
-            <p>Não tem uma conta?<a href="../meu-projeto/Registro.html">Crie agora</a></p>
+            <p>Não tem uma conta?<a href="/registro">Crie agora</a></p>
         </footer>
     </main>
 
@@ -58,17 +58,15 @@
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
 
-  // --- LÓGICA DO OLHINHO (DENTRO DO MÓDULO) ---
+  // --- LÓGICA DO OLHINHO ---
   const togglePassword = document.querySelector('#eyeIcon');
   const passwordInput = document.querySelector('#password');
 
   if (togglePassword) {
     togglePassword.addEventListener('click', () => {
-      // Troca o tipo do input
       const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
       passwordInput.setAttribute('type', type);
       
-      // Troca o ícone
       togglePassword.classList.toggle('fa-eye');
       togglePassword.classList.toggle('fa-eye-slash');
     });
@@ -84,8 +82,9 @@
     const email = document.getElementById('email').value;
     const senha = passwordInput.value;
 
-    // Validação simples de tamanho antes de enviar ao Firebase
-    if (senha.length < 8) {
+    // Ajustado para 6 caracteres para bater com a regra de criação de conta do Firebase
+    if (senha.length < 6) {
+      passError.textContent = "A senha deve ter no mínimo 6 caracteres.";
       passError.style.display = 'block';
       return;
     }
@@ -93,17 +92,17 @@
     try {
       await signInWithEmailAndPassword(auth, email, senha);
       
-      // Verifique se o caminho para licoes.html está correto
-      window.location.href = "licoes.html"; 
+      // Rota correta do Flask para onde o usuário vai ao logar!
+      window.location.href = "/licoes"; 
     } catch (error) {
       console.error(error);
       alert("Erro ao entrar: Verifique seu e-mail e senha.");
     }
   });
 
-  // Limpar erro ao digitar
+  // Limpar erro ao digitar (Ajustado para 6 também)
   passwordInput.addEventListener('input', () => {
-    if (passwordInput.value.length >= 8) {
+    if (passwordInput.value.length >= 6) {
       passError.style.display = 'none';
     }
   });

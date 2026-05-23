@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Trituno | Loja</title>
-    <link rel="stylesheet" href="../css/style.css"> 
-    <link rel="stylesheet" href="../css/loja.css"> 
+    <link rel="stylesheet" href="/static/css/style.css"> 
+    <link rel="stylesheet" href="/static/css/loja.css"> 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
@@ -16,9 +16,10 @@
         </div>
         
         <nav class="menu">
-            <a href="licoes.html"><i class="fa-solid fa-house"></i> APRENDER</a>
+            <a href="/licoes"><i class="fa-solid fa-house"></i> APRENDER</a>
             <a href="#" class="active"><i class="fa-solid fa-shopping-cart"></i> LOJA</a>
-            <a href="configuracoes.html"><i class="fa-solid fa-gear"></i> CONFIGURAÇÕES</a>
+            <a href="/configuracoes"><i class="fa-solid fa-gear"></i> CONFIGURAÇÕES</a>
+            <a href="/ranking"><i class="fa-solid fa-fire"></i> RANKING</a>
         </nav>
 
         <div class="user-progress">
@@ -130,6 +131,26 @@
             </div>
         </div>
     </main>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // Pega o valor exato que o seu licoes.js salvou
+        let progressoSalvo = localStorage.getItem('progress-bar');
+
+        if (progressoSalvo !== null) {
+            // Procura a barra de preenchimento e o texto na sidebar desta página
+            let fill = document.querySelector('.progress-fill');
+            let text = document.querySelector('.progress-text');
+
+            if (fill) {
+                fill.style.width = progressoSalvo + '%';
+            }
+            if (text) {
+                text.innerText = progressoSalvo + '% concluído';
+            }
+        }
+    });
+</script>
 
 </body>
 </html>

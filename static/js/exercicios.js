@@ -63,7 +63,7 @@ function proximaAcao() {
             // FIM DA LIÇÃO: Salva no localStorage baseado no ID da lição definido no HTML
             const idLicao = document.body.getAttribute('data-licao'); // Pega 'trituno_licao_1'
             localStorage.setItem(idLicao, 'concluida');
-            window.location.href = '../meu-projeto/licoes.html'; // Volta para a trilha de lições
+            window.location.href = '/licoes'; // Volta para a trilha de lições
         }
     } else {
         // Se errou, apenas desmarca para tentar de novo

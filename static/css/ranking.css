@@ -1,0 +1,271 @@
+/* =========================================
+   Estilos do Ranking do Trituno
+   ========================================= */
+
+/* Área de conteúdo ao lado da sidebar */
+.sidebar {
+    width: 260px;
+    height: 100vh;
+    background-color: rgba(247, 247, 247, 0.95);
+    border-right: 2px solid #e5e5e5;
+    position: fixed;
+    top: 0;   /* Adicionado para garantir o alinhamento no topo */
+    left: 0;  /* Adicionado para cravar na esquerda */
+    padding: 30px 20px;
+    display: flex;
+    flex-direction: column;
+    z-index: 10;
+    backdrop-filter: blur(8px);
+}
+
+.logo h1 {
+    color: var(--primary);
+    font-size: 1.8rem;
+    font-weight: 900;
+    margin-bottom: 40px;
+    text-align: center;
+    letter-spacing: 1px;
+}
+
+.menu {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.menu a {
+    text-decoration: none;
+    color: #4b4b4b;
+    font-weight: bold;
+    padding: 15px;
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transition: 0.2s;
+}
+
+.menu a.active {
+    background-color: #fff2da;
+    color: var(--primary);
+    border: 2px solid #fab65c;
+}
+
+/* Progresso do Usuário na Sidebar */
+.user-progress {
+    margin-top: auto; /* Empurra para o final da sidebar */
+    padding: 20px 0;
+    border-top: 2px solid #e5e5e5;
+}
+
+.user-progress p {
+    font-size: 0.85rem;
+    font-weight: 800;
+    color: #777;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 16px;
+    background-color: #e5e5e5;
+    border-radius: 20px;
+    overflow: hidden;
+    position: relative;
+    margin-bottom: 8px;
+}
+
+.progress-fill {
+    height: 100%;
+    background-color: var(--primary);
+    border-radius: 20px;
+    background-image: linear-gradient(
+        to bottom,
+        rgba(255, 255, 255, 0.3),
+        transparent
+    );
+    transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.progress-text {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #4b4b4b;
+}
+
+
+.main-content-wrapper {
+    margin-left: 260px; /* Alinhado perfeitamente com a sua sidebar */
+    padding: 50px 40px;
+    width: calc(100% - 260px);
+    min-height: 100vh;
+    background-color: #ffffff;
+}
+
+.gamification-container {
+    width: 100%;
+    max-width: 750px;
+    margin: 0 auto;
+}
+
+/* Botão de Voltar */
+.navigation-header {
+    width: 100%;
+    max-width: 750px;
+    margin: 0 auto 25px;
+    display: flex;
+}
+
+.btn-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+    color: var(--text-secondary);
+    font-size: 1.1rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    transition: color 0.2s, transform 0.2s;
+}
+
+.btn-back:hover {
+    color: var(--primary);
+    transform: translateX(-3px);
+}
+
+/* Base das boxes táteis (mesmo padrão do app) */
+.ranking-header-card.auth-box,
+.ranking-list.auth-box {
+    background-color: #ffffff;
+    border: 4px solid var(--border-color);
+    border-bottom: 10px solid var(--border-color);
+    border-radius: 28px;
+}
+
+/* Card do Troféu Superior */
+.ranking-header-card.auth-box {
+    text-align: center;
+    padding: 35px;
+    margin-bottom: 30px;
+}
+
+.trophy-main {
+    font-size: 3.8rem;
+    color: #ffc107;
+    margin-bottom: 15px;
+    filter: drop-shadow(0 4px 0 #e6a100);
+    animation: rankFloat 3s ease-in-out infinite;
+}
+
+.ranking-header-card h2 {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: var(--text-main);
+    margin-bottom: 6px;
+}
+
+.ranking-header-card p {
+    color: var(--text-secondary);
+    font-weight: 600;
+    font-size: 1rem;
+}
+
+/* Caixa que contém as linhas dos usuários */
+.ranking-list.auth-box {
+    padding: 10px 0; /* Espaço interno nas bordas verticais */
+    overflow: hidden;
+}
+
+/* Cada linha do ranking */
+.ranking-item {
+    display: flex;
+    align-items: center;
+    padding: 18px 35px;
+    border-bottom: 2px solid var(--border-color);
+    font-weight: 700;
+    font-size: 1.1rem;
+    transition: background-color 0.2s;
+}
+
+.ranking-item:last-child {
+    border-bottom: none; /* Remove a linha divisória do último colocado */
+}
+
+/* Coluna do número de posição */
+.rank-position {
+    width: 50px;
+    font-size: 1.3rem;
+    font-weight: 900;
+    color: #a0a0a0;
+    display: flex;
+    align-items: center;
+}
+
+/* Avatares redondos automáticos (DiceBear) */
+.rank-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    margin-right: 20px;
+    border: 2px solid var(--border-color);
+    background-color: #f0f4f8;
+}
+
+/* Nome do competidor */
+.rank-name {
+    flex: 1;
+    color: var(--text-main);
+    font-weight: 700;
+}
+
+/* Pontuação / Dias de Ofensiva */
+.rank-score {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: var(--text-main);
+}
+
+.rank-score i {
+    color: #ff9600; /* Cor laranja do foguinho */
+    filter: drop-shadow(0 1px 0 #cc7a00);
+}
+
+/* Estilização das Medalhas (Font Awesome) */
+.gold { color: #ffb100; font-size: 1.6rem; filter: drop-shadow(0 2px 0 #d49300); }
+.silver { color: #b0bec5; font-size: 1.6rem; filter: drop-shadow(0 2px 0 #90a4ae); }
+.bronze { color: #cd7f32; font-size: 1.6rem; filter: drop-shadow(0 2px 0 #aa6524); }
+
+/* =========================================
+   Destaque Especial para o Usuário Atual 
+   ========================================= */
+.ranking-item.rank-current {
+    background-color: #f1fbe9; /* Fundo verde bem suave */
+}
+
+.ranking-item.rank-current .rank-position {
+    color: var(--primary-dark);
+}
+
+.ranking-item.rank-current .rank-name {
+    color: var(--primary-dark);
+    font-weight: 800;
+}
+
+/* Animação de flutuar o troféu */
+@keyframes rankFloat {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+}
+
+/* Ajuste Responsivo */
+@media (max-width: 992px) {
+    .main-content-wrapper {
+        margin-left: 0;
+        width: 100%;
+        padding: 20px;
+    }
+}

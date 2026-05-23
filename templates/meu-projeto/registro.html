@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TRITUNO | Criar Conta</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="stylesheet" href="../css/style.css"> </head>
+    <link rel="stylesheet" href="/static/css/style.css"> </head>
 <body>
 
     <main class="login-container">
@@ -116,7 +116,7 @@
     try {
         // Se passar nas validações, tenta criar no Firebase
         await createUserWithEmailAndPassword(auth, email, senha);
-        window.location.href = "../meu-projeto/Registro.html"; 
+        window.location.href = "/licoes"; // Redireciona para a página de lições
     } catch (error) {
         // Se o Firebase retornar erro (ex: email já existe)
         console.error(error.code);
@@ -127,6 +127,8 @@
         }
         campoErro.style.display = 'block';
     }
+    
+    window.cadastrar = cadastrar; // Expondo a função para o escopo global
 };
 </script>
 </body>

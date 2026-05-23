@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trituno | Ranking</title>
+    <!-- Links para os estilos -->
+    <link rel="stylesheet" href="/static/css/style.css"> <!-- Seu CSS global (com :root) -->
+    <link rel="stylesheet" href="/static/css/ranking.css"> <!-- O CSS específico do ranking -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+
+  <aside class="sidebar">
+        <div class="logo">
+            <h1>TRITUNO</h1>
+        </div>
+        
+        <nav class="menu">
+            <a href="/licoes"><i class="fa-solid fa-house"></i> APRENDER</a>
+            <a href="/loja"><i class="fa-solid fa-shopping-cart"></i> LOJA</a>
+            <a href="/configuracoes"><i class="fa-solid fa-gear"></i> CONFIGURAÇÕES</a>
+            <a href="#" class="active"><i class="fa-solid fa-fire"></i> RANKING</a>
+        </nav>
+
+        <div class="user-progress">
+            <p>Progresso Geral</p>
+            <div class="progress-bar">
+                <div id="progressFill" class="progress-fill" style="width: 0%;"></div>
+            </div>
+            <span id="progressText" class="progress-text">0% concluído</span>
+        </div>
+    </aside>
+    
+
+
+    <!-- ======================================================== -->
+    <!-- ÁREA DO RANKING DA LIGA -->
+    <!-- ======================================================== -->
+    <main class="main-content-wrapper">
+        
+        <!-- Botão de Voltar -->
+        <div class="navigation-header">
+            <a href="licoes.html" class="btn-back">
+                <i class="fas fa-arrow-left"></i> Voltar para as Lições
+            </a>
+        </div>
+
+        <div class="gamification-container">
+            <!-- Cabeçalho do Ranking -->
+            <div class="ranking-header-card auth-box">
+                <i class="fas fa-trophy trophy-main"></i>
+                <h2>Liga dos Trítonos</h2>
+                <p>Mostre seu ritmo! O ranking é baseado nos seus dias de Ofensiva.</p>
+            </div>
+
+            <!-- Lista de Competidores -->
+            <div class="ranking-list auth-box">
+                
+                <!-- 1º Lugar - Medalha de Ouro -->
+                <div class="ranking-item rank-1">
+                    <div class="rank-position"><i class="fas fa-medal gold"></i></div>
+                    <img src="https://api.dicebear.com/7.x/bottts/svg?seed=Beatriz" alt="Avatar" class="rank-avatar">
+                    <span class="rank-name">Beatriz Notas</span>
+                    <span class="rank-score">15 <i class="fas fa-fire"></i></span>
+                </div>
+
+                <!-- 2º Lugar - Medalha de Prata -->
+                <div class="ranking-item rank-2">
+                    <div class="rank-position"><i class="fas fa-medal silver"></i></div>
+                    <img src="https://api.dicebear.com/7.x/bottts/svg?seed=Carlos" alt="Avatar" class="rank-avatar">
+                    <span class="rank-name">Carlos Ritmo</span>
+                    <span class="rank-score">12 <i class="fas fa-fire"></i></span>
+                </div>
+
+                <!-- 3º Lugar - Medalha de Bronze -->
+                <div class="ranking-item rank-3">
+                    <div class="rank-position"><i class="fas fa-medal bronze"></i></div>
+                    <img src="https://api.dicebear.com/7.x/bottts/svg?seed=Jones" alt="Avatar" class="rank-avatar">
+                    <span class="rank-name">Maestro Jones</span>
+                    <span class="rank-score">9 <i class="fas fa-fire"></i></span>
+                </div>
+
+                <!-- 4º Lugar - VOCÊ (Destacado em Verde Claro) -->
+                <div class="ranking-item rank-current">
+                    <div class="rank-position">4</div>
+                    <img src="https://api.dicebear.com/7.x/bottts/svg?seed=trituno" alt="Avatar" class="rank-avatar">
+                    <span class="rank-name">Você (Músico Aprendiz)</span>
+                    <span class="rank-score">7 <i class="fas fa-fire"></i></span>
+                </div>
+
+                <!-- 5º Lugar - Padrão -->
+                <div class="ranking-item">
+                    <div class="rank-position">5</div>
+                    <img src="https://api.dicebear.com/7.x/bottts/svg?seed=Davi" alt="Avatar" class="rank-avatar">
+                    <span class="rank-name">Davi Solfejo</span>
+                    <span class="rank-score">3 <i class="fas fa-fire"></i></span>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // Pega o valor exato que o seu licoes.js salvou
+        let progressoSalvo = localStorage.getItem('progress-bar');
+
+        if (progressoSalvo !== null) {
+            // Procura a barra de preenchimento e o texto na sidebar desta página
+            let fill = document.querySelector('.progress-fill');
+            let text = document.querySelector('.progress-text');
+
+            if (fill) {
+                fill.style.width = progressoSalvo + '%';
+            }
+            if (text) {
+                text.innerText = progressoSalvo + '% concluído';
+            }
+        }
+    });
+</script>
+
+</body>
+</html>
