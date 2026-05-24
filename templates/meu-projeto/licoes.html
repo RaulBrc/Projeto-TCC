@@ -32,13 +32,18 @@
 
     <main class="main-content">
         <header class="top-status">
-            <div class="status-item vidas">
-                <i class="fa-solid fa-heart"></i> 5/5
-            </div>
-            <div class="status-item cristais">
-                <i class="fa-solid fa-gem"></i> 350
-            </div>
-        </header>
+    <!-- Bloco das Vidas -->
+    <div class="status-item vidas">
+        <i class="fa-solid fa-heart"></i> 
+        <span id="contador-vidas">{{ usuario.vidas }}/5</span>
+    </div>
+    
+    <!-- Bloco dos Diamantes -->
+    <div class="status-item cristais">
+        <i class="fa-solid fa-gem"></i> 
+        <span id="contador-diamantes">{{ usuario.diamantes }}</span>
+    </div>
+</header>
 
         <section class="trilha">
             <div class="unidade-info">

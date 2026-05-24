@@ -97,7 +97,7 @@
     </main>
 
     <footer class="footer-verificacao">
-        <button class="btn-verificar" onclick="verificarPasso()">Verificar</button>
+        <button class="btn-verificar" onclick="verificarPasso()">Prosseguir</button>
     </footer>
 
     <div id="feedbackModal" class="modal-feedback">
@@ -106,9 +106,15 @@
                 <i id="feedbackIcon" class="fa-solid"></i>
                 <h2 id="feedbackMsg"></h2>
             </div>
-            <button id="btnContinuar" class="btn-verificar" onclick="proximaAcao()">Continuar</button>
+            <button id="btnContinuar" data-licao-id="1" class="btn-verificar" onclick="proximaAcao()">Continuar</button>
         </div>
     </div>
+
+    <!-- Cole isso logo antes do seu </body> no exercicio1.html -->
+<div id="aviso-recompensa" style="display: none; position: fixed; top: 20px; right: 20px; background-color: #2ecc71; color: white; padding: 15px 25px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); z-index: 1000; font-family: sans-serif;">
+    <h4 style="margin: 0 0 5px 0;">🎵 Lição Concluída!</h4>
+    <p style="margin: 0;">Você ganhou +10 XP</p>
+</div>
 
     <script src="/static/js/exercicios.js"></script>
 </body>

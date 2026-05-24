@@ -15,7 +15,7 @@
         <div class="logo">
             <h1>TRITUNO</h1>
         </div>
-        
+
         <nav class="menu">
             <a href="/licoes"><i class="fa-solid fa-house"></i> APRENDER</a>
             <a href="/loja"><i class="fa-solid fa-shopping-cart"></i> LOJA</a>
@@ -38,6 +38,20 @@
     <!-- ÁREA DO RANKING DA LIGA -->
     <!-- ======================================================== -->
     <main class="main-content-wrapper">
+
+        <header class="top-status">
+    <!-- Bloco das Vidas -->
+    <div class="status-item vidas">
+        <i class="fa-solid fa-heart"></i> 
+        <span id="contador-vidas">{{ usuario.vidas }}/5</span>
+    </div>
+    
+    <!-- Bloco dos Diamantes -->
+    <div class="status-item cristais">
+        <i class="fa-solid fa-gem"></i> 
+        <span id="contador-diamantes">{{ usuario.diamantes }}</span>
+    </div>
+</header>
         
         <!-- Botão de Voltar -->
         <div class="navigation-header">

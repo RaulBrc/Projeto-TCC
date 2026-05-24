@@ -370,3 +370,82 @@
     background: radial-gradient(circle, rgba(255,255,255,0.2) 0%, transparent 70%);
     pointer-events: none;
 }
+
+/* Container geral no topo (garantindo que esteja alinhado) */
+.top-status {
+    display: flex;
+    justify-content: flex-end;
+    gap: 25px;
+    font-weight: bold;
+    font-size: 1.2rem;
+    padding: 0px 0; /* Dá um respiro nas bordas */
+}
+
+/* Estilo base para os itens de status (Texto + Ícone) */
+.status-item {
+    display: flex;
+    align-items: center;
+    gap: 8px; /* Espaço entre o ícone e o número */
+}
+
+/* --- ÍCONE DE CORAÇÃO (VIDAS) --- */
+.status-item.vidas {
+    color: #ff4b4b; /* Vermelho vibrante para o texto e ícone */
+}
+
+/* Estilização específica do ícone de coração */
+.status-item.vidas i {
+    color: #ff4b4b;
+    /* Efeito de brilho suave para destacar */
+    filter: drop-shadow(0 2px 4px rgba(255, 75, 75, 0.3));
+}
+
+/* --- ÍCONE DE DIAMANTE (CRISTAIS) --- */
+.status-item.cristais {
+    color: #1cb0f6; /* Azul brilhante (estilo Duolingo) */
+}
+
+/* Estilização específica do ícone de diamante */
+.status-item.cristais i {
+    color: #1cb0f6;
+    /* Efeito de brilho suave para destacar */
+    filter: drop-shadow(0 2px 4px rgba(28, 176, 246, 0.3));
+}
+
+.top-status {
+    display: inline-flex;       
+    align-items: center;        
+    gap: 25px;                  
+    font-weight: 800;           
+    font-size: 1.1rem;
+    background-color: #ffffff;
+    border: 3px solid #e5e5e5;  
+    border-bottom: 6px solid #e5e5e5; 
+    border-radius: 20px;
+    padding: 8px 20px;          
+    
+    /* FORÇA A BARRA A FICAR DO TAMANHO DOS ÍCONES */
+    width: max-content !important; 
+    
+    margin-left: auto;          
+    margin-bottom: 25px;
+}
+
+.main-content-wrapper {
+    margin-left: 260px;
+    padding: 50px 40px;
+    width: calc(100% - 260px);
+    min-height: 100vh;
+    background-color: #ffffff;
+
+    /* ADICIONE ESSAS LINHAS ABAIXO: */
+    display: flex;
+    flex-direction: column; /* Organiza os elementos em linha vertical */
+    align-items: flex-end;  /* Joga tudo o que for filho direto para a DIREITA */
+}
+
+/* E para os outros elementos (como a grid da loja e o botão de voltar) não irem junto para a direita, force-os a ocupar 100% da largura: */
+.navigation-header,
+.gamification-container {
+    width: 100%;
+}
