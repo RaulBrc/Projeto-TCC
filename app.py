@@ -1,7 +1,10 @@
 from flask import Flask, render_template, request, jsonify, session, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 import os
+import logging
 from datetime import datetime, timedelta
+
+logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
 
@@ -96,9 +99,9 @@ def salvar_usuario_firebase():
             usuario = Usuario(id=uid, nome=nome, email=email, vidas=5, xp=0, diamantes=0)
             db.session.add(usuario)
             db.session.commit()
-            print(f"🆕 Usuário [{email}] registrado com sucesso no trituno.db via UID!")
+            logger.info("Usuario %s registrado com sucesso no trituno.db via UID.", email)
         else:
-            print(f"🔄 Usuário [{email}] já tem registro local. Sincronizando sessão.")
+            logger.info("Usuario %s ja tem registro local. Sincronizando sessao.", email)
 
         # 🔥 ESSENCIAL: Guarda o UID na sessão do Flask para blindar a navegação das páginas
         session['usuario_id'] = uid
@@ -106,7 +109,7 @@ def salvar_usuario_firebase():
 
     except Exception as e:
         db.session.rollback()
-        print(f"💥 Falha ao sincronizar com banco local: {str(e)}")
+        logger.exception("Falha ao sincronizar com banco local")
         return jsonify({"status": "erro", "mensagem": str(e)}), 500
     
     # ==============================================================================
@@ -211,15 +214,24 @@ def concluir_licao():
         if not ja_concluida:
             novo_progresso = Progresso(usuario_id=usuario.id, licao_id=licao_id, concluido=True)
             db.session.add(novo_progresso)
-            usuario.xp += 10 
+            usuario.xp += 10
             db.session.commit()
-            print(f"🚀 Sucesso: Lição {licao_id} computada para o UID: {usuario.id}")
-            return jsonify({"status": "sucesso", "mensagem": "Progresso gravado localmente!"})
-        
-        return jsonify({"status": "sucesso", "mensagem": "Esta lição já havia sido concluída."})
+            logger.info("Licao %s computada para o UID: %s", licao_id, usuario.id)
+            return jsonify({
+                "status": "sucesso",
+                "mensagem": "Progresso gravado localmente!",
+                "progresso": calcular_barra_progresso(usuario)
+            })
+
+        return jsonify({
+            "status": "sucesso",
+            "mensagem": "Esta lição já havia sido concluída.",
+            "progresso": calcular_barra_progresso(usuario)
+        })
 
     except Exception as e:
         db.session.rollback()
+        logger.exception("Erro ao registrar conclusao da licao")
         return jsonify({"status": "erro", "mensagem": str(e)}), 500
 
 

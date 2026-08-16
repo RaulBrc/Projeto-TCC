@@ -1,21 +1,35 @@
 // licoes.js
 
+function calcularProgressoLocal() {
+    const nodes = document.querySelectorAll('.node');
+    if (!nodes.length) return 0;
+
+    let concluidos = 0;
+    nodes.forEach((node, index) => {
+        const numeroLicao = index + 1;
+        const licaoId = `trituno_licao_${numeroLicao}`;
+        if (localStorage.getItem(licaoId) === 'concluida') {
+            concluidos += 1;
+        }
+    });
+
+    return Math.min(100, Math.round((concluidos / nodes.length) * 100));
+}
+
 function configurarTrilha() {
     const nodes = document.querySelectorAll('.node');
 
     nodes.forEach((node, index) => {
         const numeroLicao = index + 1;
-        // O nome aqui PRECISA ser igual ao que você salva no exercicio.html
         const licaoId = `trituno_licao_${numeroLicao}`;
         const licaoAnteriorId = `trituno_licao_${index}`;
-        
+
         const estaConcluida = localStorage.getItem(licaoId) === 'concluida';
         const anteriorConcluida = index === 0 || localStorage.getItem(licaoAnteriorId) === 'concluida';
 
         if (estaConcluida) {
             node.classList.add('done');
             node.classList.remove('locked');
-            // Muda o ícone de cadeado para música se já completou
             const icone = node.querySelector('i');
             if (icone) icone.className = 'fa-solid fa-music';
         } else if (anteriorConcluida) {
@@ -33,12 +47,7 @@ function configurarTrilha() {
 }
 
 function atualizarBarraVisual() {
-    const nodes = document.querySelectorAll('.node');
-    // Conta quantos botões têm a classe 'done'
-    const concluidos = document.querySelectorAll('.node.done').length;
-    
-    // Cálculo da porcentagem
-    const porcentagem = nodes.length > 0 ? Math.round((concluidos / nodes.length) * 100) : 0;
+    const porcentagem = calcularProgressoLocal();
 
     const fill = document.getElementById('progressFill');
     const text = document.getElementById('progressText');
@@ -50,8 +59,7 @@ function atualizarBarraVisual() {
         text.innerText = porcentagem + "% concluído";
     }
 
-    localStorage.setItem('progress-bar', porcentagem);
+    localStorage.setItem('progress-bar', String(porcentagem));
 }
 
-// Inicia a configuração assim que a página de trilha carrega
 window.onload = configurarTrilha;
