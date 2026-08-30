@@ -210,7 +210,8 @@ input:focus {
 
 /* O Ícone em si */
 .hero-icon {
-    margin-bottom: 20px;
+    margin-bottom: 50px;
+    margin-left: 80px;
     display: flex;
     justify-content: center;
     /* Animação de flutuação suave estilo Duolingo */
@@ -234,7 +235,7 @@ input:focus {
 .hero-logo-img {
     left: 50%;
     transform: translateX(-20%);
-    width: 400px; /* Ajuste o tamanho conforme sua logo */
+    width: 200px; /* Ajuste o tamanho conforme sua logo */
     height: auto;
     object-fit: contain; /* Garante que a imagem não distorça */
 }
