@@ -47,7 +47,11 @@ function configurarTrilha() {
 }
 
 function atualizarBarraVisual() {
-    const porcentagem = calcularProgressoLocal();
+    const progressoDoServidor = Number(document.body?.dataset?.progresso ?? localStorage.getItem('progress-bar') ?? 0);
+    const progressoLocal = calcularProgressoLocal();
+    const porcentagem = Number.isFinite(progressoDoServidor) && progressoDoServidor >= 0
+        ? Math.max(progressoLocal, progressoDoServidor)
+        : progressoLocal;
 
     const fill = document.getElementById('progressFill');
     const text = document.getElementById('progressText');

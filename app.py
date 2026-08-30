@@ -23,13 +23,14 @@ db = SQLAlchemy(app)
 
 class Usuario(db.Model):
     # 🔥 O ID É STRING: Ele vai guardar exatamente o "UID do usuário" do Firebase!
-    id = db.Column(db.String(128), primary_key=True) 
+    id = db.Column(db.String(128), primary_key=True)
     nome = db.Column(db.String(100))
     email = db.Column(db.String(100), unique=True)
     xp = db.Column(db.Integer, default=0)
     diamantes = db.Column(db.Integer, default=0)
     vidas = db.Column(db.Integer, default=5)
     bloqueado_ate = db.Column(db.DateTime, nullable=True)
+    ultima_restauracao_vidas = db.Column(db.DateTime, nullable=True, default=datetime.utcnow)
 
 class Licao(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -44,9 +45,33 @@ class Progresso(db.Model):
     licao_id = db.Column(db.Integer, db.ForeignKey('licao.id'), nullable=False)
     concluido = db.Column(db.Boolean, default=True)
 
-    # ==============================================================================
+# ==============================================================================
 # PARTE 2: FUNÇÕES DE SUPORTE E SINCRONIZAÇÃO DO FIREBASE
 # ==============================================================================
+
+def sincronizar_vidas_usuario(usuario):
+    if not usuario:
+        return None
+
+    agora = datetime.utcnow()
+
+    if usuario.bloqueado_ate and usuario.bloqueado_ate <= agora:
+        usuario.bloqueado_ate = None
+        usuario.vidas = 5
+
+    if not usuario.ultima_restauracao_vidas:
+        usuario.ultima_restauracao_vidas = agora
+
+    while usuario.vidas < 5 and agora >= usuario.ultima_restauracao_vidas + timedelta(minutes=20):
+        usuario.vidas += 1
+        usuario.ultima_restauracao_vidas += timedelta(minutes=20)
+
+    if usuario.vidas > 5:
+        usuario.vidas = 5
+
+    db.session.commit()
+    return usuario
+
 
 def obter_usuario_sessao():
     """
@@ -56,7 +81,9 @@ def obter_usuario_sessao():
     uid_logado = session.get('usuario_id')
     if not uid_logado:
         return None
-    return Usuario.query.get(uid_logado)
+
+    usuario = Usuario.query.get(uid_logado)
+    return sincronizar_vidas_usuario(usuario)
 
 
 def calcular_barra_progresso(usuario):
@@ -208,9 +235,8 @@ def concluir_licao():
     licao_id = dados.get('licao_id') if dados else 1
 
     try:
-        # 🔥 Evita registros duplicados da mesma lição para o mesmo UID
         ja_concluida = Progresso.query.filter_by(usuario_id=usuario.id, licao_id=licao_id).first()
-        
+
         if not ja_concluida:
             novo_progresso = Progresso(usuario_id=usuario.id, licao_id=licao_id, concluido=True)
             db.session.add(novo_progresso)
@@ -244,28 +270,41 @@ def perder_vida():
     if not usuario:
         return jsonify({"status": "erro", "mensagem": "Usuário não localizado"}), 404
 
+    if usuario.bloqueado_ate and usuario.bloqueado_ate > datetime.utcnow():
+        return jsonify({"status": "ja_bloqueado", "vidas_restantes": usuario.vidas}), 400
+
     if usuario.vidas > 0:
         usuario.vidas -= 1
+        usuario.ultima_restauracao_vidas = datetime.utcnow()
         if usuario.vidas == 0:
-            usuario.bloqueado_ate = datetime.now() + timedelta(hours=2)
+            usuario.bloqueado_ate = datetime.utcnow() + timedelta(hours=2)
         db.session.commit()
         return jsonify({"status": "sucesso", "vidas_restantes": usuario.vidas}), 200
-        
-    return jsonify({"status": "ja_bloqueado"}), 400
+
+    return jsonify({"status": "ja_bloqueado", "vidas_restantes": usuario.vidas}), 400
+
+
+def garantir_colunas_usuario():
+    colunas = [coluna['name'] for coluna in db.inspect(db.engine).get_columns('usuario')]
+    if 'ultima_restauracao_vidas' not in colunas:
+        with db.engine.begin() as conn:
+            conn.execute(db.text('ALTER TABLE usuario ADD COLUMN ultima_restauracao_vidas DATETIME'))
+
+
+with app.app_context():
+    db.create_all()
+    garantir_colunas_usuario()
 
 
 # ==============================================================================
 # INICIALIZAÇÃO AUTOMÁTICA DO BANCO E DO SERVIDOR
 # ==============================================================================
 if __name__ == '__main__':
-    # Cria a pasta 'instance' de forma segura caso ela tenha sido deletada ou limpa no reset
     os.makedirs(os.path.join(base_dir, 'instance'), exist_ok=True)
-    
+
     with app.app_context():
-        # db.create_all() cria o arquivo trituno.db e as tabelas se não existirem.
-        # Se os arquivos já existirem, ele não apaga e mantém os dados salvos!
         db.create_all()
-    
-    # Define a porta padrão do Flask (5000) ou a do ambiente de hospedagem
+        garantir_colunas_usuario()
+
     porta = int(os.environ.get("PORT", 5000))
     app.run(host='0.0.0.0', port=porta)
