@@ -19,29 +19,31 @@ function calcularProgressoLocal() {
 function configurarTrilha() {
     const nodes = document.querySelectorAll('.node');
 
-    nodes.forEach((node, index) => {
-        const numeroLicao = index + 1;
-        const licaoId = `trituno_licao_${numeroLicao}`;
-        const licaoAnteriorId = `trituno_licao_${index}`;
+    if (nodes.length) {
+        nodes.forEach((node, index) => {
+            const numeroLicao = index + 1;
+            const licaoId = `trituno_licao_${numeroLicao}`;
+            const licaoAnteriorId = `trituno_licao_${index}`;
 
-        const estaConcluida = localStorage.getItem(licaoId) === 'concluida';
-        const anteriorConcluida = index === 0 || localStorage.getItem(licaoAnteriorId) === 'concluida';
+            const estaConcluida = localStorage.getItem(licaoId) === 'concluida';
+            const anteriorConcluida = index === 0 || localStorage.getItem(licaoAnteriorId) === 'concluida';
 
-        if (estaConcluida) {
-            node.classList.add('done');
-            node.classList.remove('locked');
-            const icone = node.querySelector('i');
-            if (icone) icone.className = 'fa-solid fa-music';
-        } else if (anteriorConcluida) {
-            node.classList.remove('locked');
-            const icone = node.querySelector('i');
-            if (icone && icone.classList.contains('fa-lock')) {
-                icone.className = 'fa-solid fa-music';
+            if (estaConcluida) {
+                node.classList.add('done');
+                node.classList.remove('locked');
+                const icone = node.querySelector('i');
+                if (icone) icone.className = 'fa-solid fa-music';
+            } else if (anteriorConcluida) {
+                node.classList.remove('locked');
+                const icone = node.querySelector('i');
+                if (icone && icone.classList.contains('fa-lock')) {
+                    icone.className = 'fa-solid fa-music';
+                }
+            } else {
+                node.classList.add('locked');
             }
-        } else {
-            node.classList.add('locked');
-        }
-    });
+        });
+    }
 
     atualizarBarraVisual();
 }
@@ -50,7 +52,7 @@ function atualizarBarraVisual() {
     const progressoDoServidor = Number(document.body?.dataset?.progresso ?? localStorage.getItem('progress-bar') ?? 0);
     const progressoLocal = calcularProgressoLocal();
     const porcentagem = Number.isFinite(progressoDoServidor) && progressoDoServidor >= 0
-        ? Math.max(progressoLocal, progressoDoServidor)
+        ? progressoDoServidor
         : progressoLocal;
 
     const fill = document.getElementById('progressFill');
@@ -66,4 +68,10 @@ function atualizarBarraVisual() {
     localStorage.setItem('progress-bar', String(porcentagem));
 }
 
-window.onload = configurarTrilha;
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', configurarTrilha);
+} else {
+    configurarTrilha();
+}
+
+window.addEventListener('load', configurarTrilha);

@@ -27,11 +27,19 @@ class Usuario(db.Model):
     id = db.Column(db.String(128), primary_key=True)
     nome = db.Column(db.String(100))
     email = db.Column(db.String(100), unique=True)
+    nickname = db.Column(db.String(50), unique=True, nullable=True)
     xp = db.Column(db.Integer, default=0)
     diamantes = db.Column(db.Integer, default=0)
     vidas = db.Column(db.Integer, default=5)
     bloqueado_ate = db.Column(db.DateTime, nullable=True)
     ultima_restauracao_vidas = db.Column(db.DateTime, nullable=True, default=datetime.utcnow)
+
+class Apostila(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    modulo = db.Column(db.Integer, nullable=False) # Ex: Módulo 1, 2, 3...
+    titulo = db.Column(db.String(150), nullable=False)
+    conteudo = db.Column(db.Text, nullable=False) # Conteúdo em HTML ou Markdown
+    resumo = db.Column(db.String(255), nullable=True)
 
 class Licao(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -127,22 +135,39 @@ def salvar_usuario_firebase():
 
     uid = dados.get('uid')
     email = dados.get('email')
-    nome = dados.get('nome') or "Músico Aprendiz"
+    nome = (dados.get('nome') or "Músico Aprendiz").strip()
+    nickname = (dados.get('nickname') or '').strip()
 
     if not uid or not email:
         return jsonify({"status": "erro", "mensagem": "Dados obrigatórios ausentes"}), 400
+
+    nickname_final = nickname or nome
+    if len(nickname_final) < 3:
+        return jsonify({"status": "erro", "mensagem": "Nickname deve ter pelo menos 3 caracteres."}), 400
 
     try:
         usuario = Usuario.query.get(uid)
 
         if not usuario:
-            usuario = Usuario(id=uid, nome=nome, email=email, vidas=5, xp=0, diamantes=0)
+            usuario = Usuario(
+                id=uid,
+                nome=nome,
+                email=email,
+                nickname=nickname_final,
+                vidas=5,
+                xp=0,
+                diamantes=0,
+            )
             db.session.add(usuario)
-            db.session.commit()
             logger.info("Usuario %s registrado com sucesso no trituno.db via UID.", email)
         else:
+            usuario.nome = usuario.nome or nome
+            usuario.email = usuario.email or email
+            if nickname and not usuario.nickname:
+                usuario.nickname = nickname_final
             logger.info("Usuario %s ja tem registro local. Sincronizando sessao.", email)
 
+        db.session.commit()
         session['usuario_id'] = uid
         return jsonify({"status": "sucesso", "mensagem": "Usuário local sincronizado com Firebase"}), 200
 
@@ -240,10 +265,59 @@ def pagina_configuracoes():
     progresso = calcular_barra_progresso(usuario)
     return render_template('meu-projeto/configuracoes.html', usuario=usuario, progresso=progresso)
 
+@app.route('/apostila')
+def pagina_apostila():
+    usuario = obter_usuario_sessao() 
+    if not usuario:
+        return redirect(url_for('pagina_login'))
+
+    modulo_atual = getattr(usuario, 'modulo', 1) 
+
+    liberadas = Apostila.query.filter(Apostila.modulo <= modulo_atual).all()
+    bloqueadas = Apostila.query.filter(Apostila.modulo > modulo_atual).all()
+    progresso = calcular_barra_progresso(usuario)
+
+    return render_template('meu-projeto/apostilas.html', usuario=usuario, progresso=progresso, liberadas=liberadas, bloqueadas=bloqueadas)
+
+
+@app.route('/apostila1')
+def pagina_apostila1():
+    usuario = obter_usuario_sessao()
+    if not usuario:
+        return redirect(url_for('pagina_login'))
+
+    progresso = calcular_barra_progresso(usuario)
+    return render_template('apostilasdl/apostila1.html', progresso=progresso)
+
+
+@app.route('/apostila/<int:apostila_id>')
+def ler_apostila(apostila_id):
+    usuario = obter_usuario_sessao()
+    if not usuario:
+        return redirect(url_for('pagina_login'))
+
+    apostila = Apostila.query.get_or_404(apostila_id)
+    return render_template('ler_apostila.html', apostila=apostila)
+
 
 # ==============================================================================
 # PARTE 4: ROTAS DE JOGO (PROGRESSO/VIDAS) E INICIALIZAÇÃO DO SERVIDOR
 # ==============================================================================
+
+@app.route('/api/obter-email-por-identifier', methods=['POST'])
+def obter_email_por_identifier():
+    dados = request.get_json()
+    identifier = dados.get('identifier', '').strip().lower()
+
+    # Verifica se já é um e-mail ou se é um nickname
+    if '@' in identifier:
+        return jsonify({'status': 'sucesso', 'email': identifier})
+
+    usuario = Usuario.query.filter_by(nickname=identifier).first()
+    if usuario:
+        return jsonify({'status': 'sucesso', 'email': usuario.email})
+    
+    return jsonify({'status': 'erro', 'mensagem': 'Usuário ou e-mail não encontrado.'}), 404
 
 @app.route('/api/tempo-bloqueio', methods=['GET'])
 def tempo_bloqueio():
@@ -346,6 +420,9 @@ def perder_vida():
 
 def garantir_colunas_usuario():
     colunas = [coluna['name'] for coluna in db.inspect(db.engine).get_columns('usuario')]
+    if 'nickname' not in colunas:
+        with db.engine.begin() as conn:
+            conn.execute(text('ALTER TABLE usuario ADD COLUMN nickname VARCHAR(50)'))
     if 'ultima_restauracao_vidas' not in colunas:
         with db.engine.begin() as conn:
             conn.execute(text('ALTER TABLE usuario ADD COLUMN ultima_restauracao_vidas DATETIME'))

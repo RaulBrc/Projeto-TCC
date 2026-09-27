@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trituno - Apostila 1</title>
+    <link rel="stylesheet" href="/static/css/apostiladl.css">
+    <link rel="stylesheet" href="/static/css/responsivo.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body data-progresso="{{ progresso }}">
+
+    <aside class="sidebar">
+        <div class="logo">
+            <h1>TRITUNO</h1>
+        </div>
+        
+        <nav class="menu">
+            <a href="/licoes"><i class="fa-solid fa-house"></i> APRENDER</a>
+            <a href="/apostila" class="active"><i class="fa-solid fa-book-open"></i> APOSTILA</a>
+            <a href="/loja"><i class="fa-solid fa-shopping-cart"></i> LOJA</a>
+            <a href="/configuracoes"><i class="fa-solid fa-gear"></i> CONFIGURAÇÕES</a>
+            <a href="/ranking"><i class="fa-solid fa-fire"></i> RANKING</a>
+        </nav>
+
+        <div class="user-progress">
+            <p>Progresso Geral</p>
+            <div class="progress-bar">
+                <div id="progressFill" class="progress-fill" style="width: 0%;"></div>
+            </div>
+            <span id="progressText" class="progress-text">0% concluído</span>
+        </div>
+    </aside>
+
+    <main class="main-content-wrapper">
+        <div class="navigation-header">
+            <a href="/apostilas" class="btn-back">
+                <i class="fa-solid fa-arrow-left"></i> Voltar para Apostilas
+            </a>
+        </div>
+
+        <article class="apostila-leitura-card">
+            <header class="apostila-header-artigo">
+                <span class="badge-modulo">Módulo 1</span>
+                <h1>Propriedades do Som e Figuras Musicais</h1>
+                <p class="subtitulo-artigo">Aprenda a base teórica sobre a duração e o tempo na música.</p>
+            </header>
+
+            <hr class="divisor">
+
+            <section class="conteudo-texto">
+                <h2>1. As Figuras Musicais</h2>
+                <p>Na música, as figuras musicais indicam a duração do som e dos silêncios (pausas). A figura de maior valor usada como referência é a Semibreve.</p>
+                
+                <blockquote class="destaque-dica">
+                    <i class="fa-solid fa-lightbulb"></i> <strong>Atenção:</strong> Cada figura vale metade da anterior!
+                </blockquote>
+
+                <h2>2. Tabela de Duração</h2>
+                <ul class="lista-conceitos">
+                    <li><strong>Semibreve:</strong> 4 Tempos</li>
+                    <li><strong>Mínima:</strong> 2 Tempos</li>
+                    <li><strong>Semínima:</strong> 1 Tempo</li>
+                    <li><strong>Colcheia:</strong> 1/2 Tempo</li>
+                </ul>
+            </section>
+
+            <footer class="apostila-footer-acoes">
+                <a href="/licoes" class="btn-primary">Ir para os Exercícios</a>
+            </footer>
+        </article>
+    </main>
+
+    <script src="/static/js/licoes.js"></script>
+</body>
+</html>

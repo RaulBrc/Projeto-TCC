@@ -1,16 +1,25 @@
-<main class="aula-container">
-    <div class="header-aula">
-        <link rel="stylesheet" href="/static/css/introducao.css">
-        <a href="/index.html" class="voltar-btn"><i class="fa-solid fa-xmark"></i></a>
-        <h1>Teoria Musical</h1>
-    </div>
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trituno - Teoria Musical</title>
+    <link rel="stylesheet" href="/static/css/introducao.css">
+    <link rel="stylesheet" href="/static/css/responsivo.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+    <main class="aula-container">
+        <header class="header-aula">
+            <a href="/licoes" class="voltar-btn" aria-label="Voltar para lições"><i class="fa-solid fa-xmark"></i></a>
+            <h1>Teoria Musical</h1>
+        </header>
 
-    <section class="conteudo">
+        <section class="conteudo">
             <h1>As Figuras Musicais</h1>
             <p class="instrucao">A música é feita de sons e silêncios. Cada figura abaixo tem um tempo de duração e uma "irmã" que representa o silêncio (pausa).</p>
 
             <div class="lista-cards">
-                
                 <div class="card-aula lenta">
                     <div class="nota-visual">&#x1D15D;</div>
                     <div class="info">
@@ -66,12 +75,12 @@
                         <p>A mais rápida de todas! Pausa: <span class="pausa">&#x1D141;</span></p>
                     </div>
                 </div>
-
             </div>
         </section>
 
-    <footer class="footer-aula">
-        <button class="btn-continuar" onclick="location.href='/exercicio1'">CONTINUAR</button>
-    </footer>
-
-</main>
+        <footer class="footer-aula">
+            <button class="btn-continuar" onclick="location.href='/exercicio1'">CONTINUAR</button>
+        </footer>
+    </main>
+</body>
+</html>

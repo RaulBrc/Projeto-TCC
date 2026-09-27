@@ -7,6 +7,7 @@
     <!-- Links para os estilos -->
     <link rel="stylesheet" href="/static/css/style.css"> <!-- Seu CSS global (com :root) -->
     <link rel="stylesheet" href="/static/css/ranking.css"> <!-- O CSS específico do ranking -->
+    <link rel="stylesheet" href="/static/css/responsivo.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body data-progresso="{{ progresso }}">
@@ -18,6 +19,7 @@
 
         <nav class="menu">
             <a href="/licoes"><i class="fa-solid fa-house"></i> APRENDER</a>
+            <a href="/apostila"><i class="fa-solid fa-book-open"></i>APOSTILA</a>
             <a href="/loja"><i class="fa-solid fa-shopping-cart"></i> LOJA</a>
             <a href="/configuracoes"><i class="fa-solid fa-gear"></i> CONFIGURAÇÕES</a>
             <a href="#" class="active"><i class="fa-solid fa-fire"></i> RANKING</a>
@@ -115,23 +117,6 @@
         </div>
     </main>
 
-<script>
-    document.addEventListener("DOMContentLoaded", function() {
-        const progressoServidor = Number(document.body.dataset.progresso ?? localStorage.getItem('progress-bar') ?? 0);
-        const progressoSalvo = Number.isFinite(progressoServidor) ? progressoServidor : Number(localStorage.getItem('progress-bar') ?? 0);
-        localStorage.setItem('progress-bar', String(progressoSalvo));
-
-        let fill = document.querySelector('.progress-fill');
-        let text = document.querySelector('.progress-text');
-
-        if (fill) {
-            fill.style.width = progressoSalvo + '%';
-        }
-        if (text) {
-            text.innerText = progressoSalvo + '% concluído';
-        }
-    });
-</script>
-
+<script src="/static/js/licoes.js"></script>
 </body>
 </html>

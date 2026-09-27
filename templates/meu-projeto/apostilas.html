@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trituno - Apostilas e Teoria</title>
+    <link rel="stylesheet" href="/static/css/apostilas.css">
+    <link rel="stylesheet" href="/static/css/responsivo.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body data-progresso="{{ progresso }}">
+
+    <aside class="sidebar">
+        <div class="logo">
+            <h1>TRITUNO</h1>
+        </div>
+        
+        <nav class="menu">
+            <a href="/licoes"><i class="fa-solid fa-house"></i> APRENDER</a>
+            <a href="/apostilas" class="active"><i class="fa-solid fa-book-open"></i> APOSTILA</a>
+            <a href="/loja"><i class="fa-solid fa-shopping-cart"></i> LOJA</a>
+            <a href="/configuracoes"><i class="fa-solid fa-gear"></i> CONFIGURAÇÕES</a>
+            <a href="/ranking"><i class="fa-solid fa-fire"></i> RANKING</a>
+        </nav>
+
+        <div class="user-progress">
+            <p>Progresso Geral</p>
+            <div class="progress-bar">
+                <div id="progressFill" class="progress-fill" style="width: 0%;"></div>
+            </div>
+            <span id="progressText" class="progress-text">0% concluído</span>
+        </div>
+    </aside>
+
+    <main class="container-apostilas">
+        
+        <div class="navigation-header">
+            <a href="/licoes" class="btn-back">
+                <i class="fas fa-arrow-left"></i> Voltar para as Lições
+            </a>
+        </div>
+
+        <header class="header-apostilas">
+            <h1><i class="fa-solid fa-book-open"></i> Apostilas e Conteúdo Teórico</h1>
+            <p>Revise o material explicativo do seu módulo para reforçar o seu aprendizado musical.</p>
+        </header>
+
+        <!-- APOSTILAS LIBERADAS -->
+        <section class="secao-modulo">
+            <h2 class="titulo-modulo"><i class="fa-solid fa-unlock" style="color: #58cc02;"></i> Conteúdos Liberados</h2>
+            
+            <div class="grid-apostilas">
+                {% if liberadas %}
+                    {% for item in liberadas %}
+                    <article class="card-apostila">
+                        <div>
+                            <div class="card-header">
+                                <div class="card-icon"><i class="fa-solid fa-music"></i></div>
+                                <h3 class="card-titulo">{{ item.titulo }}</h3>
+                            </div>
+                            <p class="card-resumo">{{ item.resumo or 'Acesse o conteúdo completo para estudar a teoria.' }}</p>
+                        </div>
+                        <a href="/apostila/{{ item.id }}" class="btn-ler">Abrir Apostila</a>
+                    </article>
+                    {% endfor %}
+                {% else %}
+                    <!-- CARD FIXO DA APOSTILA 1 -->
+                    <article class="card-apostila">
+                        <div>
+                            <div class="card-header">
+                                <div class="card-icon"><i class="fa-solid fa-music"></i></div>
+                                <h3 class="card-titulo">Apostila 1 - Propriedades do Som</h3>
+                            </div>
+                            <p class="card-resumo">Estude a teoria sobre figuras de som, durações e pausas musicais.</p>
+                        </div>
+                        <a href="/apostila1" class="btn-ler">Abrir Apostila</a>
+                    </article>
+                {% endif %}
+            </div>
+        </section>
+
+        <!-- APOSTILAS BLOQUEADAS -->
+        {% if bloqueadas %}
+        <section class="secao-modulo">
+            <h2 class="titulo-modulo"><i class="fa-solid fa-lock" style="color: #aaa;"></i> Módulos Seguintes</h2>
+            
+            <div class="grid-apostilas">
+                {% for item in bloqueadas %}
+                <article class="card-apostila bloqueada">
+                    <div>
+                        <div class="card-header">
+                            <div class="card-icon"><i class="fa-solid fa-lock"></i></div>
+                            <h3 class="card-titulo">{{ item.titulo }}</h3>
+                        </div>
+                        <p class="card-resumo">Complete as lições anteriores para liberar este conteúdo.</p>
+                    </div>
+                    <span class="btn-ler btn-bloqueado">Bloqueado</span>
+                </article>
+                {% endfor %}
+            </div>
+        </section>
+        {% endif %}
+
+    </main>
+
+<script src="/static/js/licoes.js"></script>
+</body>
+</html>
