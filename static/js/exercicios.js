@@ -15,7 +15,7 @@ function selecionar(btn, tipo) {
     // Busca a tela onde o usuário clicou
     const telaAtual = btn.closest('.tela-exercicio');
     
-    // CORREÇÃO: Remove a seleção de botões OU cards dentro dessa tela
+    // Remove a seleção de botões OU cards dentro dessa tela
     telaAtual.querySelectorAll('.opcao-btn, .card-opcao').forEach(b => b.classList.remove('selected'));
     
     // Adiciona seleção ao clicado
@@ -44,7 +44,6 @@ function verificarPasso() {
     }
 }
 
-// CORREÇÃO: Adicionado o "async" de volta aqui no começo da função!
 async function proximaAcao() {
     const modal = document.getElementById('feedbackModal');
     modal.classList.remove('show');
@@ -62,11 +61,13 @@ async function proximaAcao() {
             atualizarBarraInterna();
         } else {
             // ==========================================
-            //  FIM DA LIÇÃO: BANCO DE DADOS!
+            //  FIM DA LIÇÃO: COMUNICAÇÃO COM O FLASK
             // ==========================================
             
             const botao = document.getElementById('btnContinuar');
-            const licaoId = botao ? botao.getAttribute('data-licao-id') : '1';
+            // Garante conversão para Número Inteiro (Integer)
+            const rawLicaoId = botao ? botao.getAttribute('data-licao-id') : 2;
+            const licaoIdNum = parseInt(rawLicaoId, 10);
 
             try {
                 const resposta = await fetch('/api/concluir-licao', {
@@ -75,7 +76,7 @@ async function proximaAcao() {
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
-                        licao_id: licaoId
+                        licao_id: licaoIdNum // Envia como int (número)
                     })
                 });
 
@@ -87,25 +88,26 @@ async function proximaAcao() {
                         aviso.style.display = 'block'; // Mostra o card verde flutuante
                     }
 
-                    // Espera 3 segundos (3000ms) com o aviso na tela antes de redirecionar
+                    // Espera 3 segundos com o aviso na tela antes de redirecionar
                     setTimeout(() => {
                         window.location.href = '/licoes';
                     }, 3000);
                     
                     return; 
                 } else {
-                    alert("Lição concluída! (Mas houve um erro ao salvar os pontos no servidor).");
+                    console.error("Erro do servidor:", resultado.mensagem);
+                    alert("Aviso: " + (resultado.mensagem || "Erro ao salvar os pontos."));
+                    window.location.href = '/licoes';
                 }
             } catch (erro) {
                 console.error("Erro ao conectar com o Flask:", erro);
                 alert("Lição concluída! (Sem conexão com o servidor para salvar pontos).");
+                window.location.href = '/licoes';
             }
-
-            window.location.href = '/licoes'; 
         }
     } else {
         // ==========================================
-        //  O USUÁRIO ERROU A RESPOSTA E FECHOU O MODAL
+        //  O USUÁRIO ERROU A RESPOSTA
         // ==========================================
         if (opcaoSelecionada) {
             opcaoSelecionada.classList.remove('selected');
@@ -128,7 +130,6 @@ async function proximaAcao() {
                 window.location.href = '/licoes';
                 return;
             } else if (resultado.status === 'sucesso') {
-                // CORREÇÃO: Altera o texto do contador para o formato Fracionado (ex: 4/5)
                 const elementoVidas = document.getElementById('contador-vidas');
                 if (elementoVidas) {
                     elementoVidas.innerHTML = `❤️ ${resultado.vidas_restantes}/5`;
@@ -145,16 +146,5 @@ function atualizarBarraInterna() {
     if (barra) {
         const porcentagem = (etapaAtual / totalEtapas) * 100;
         barra.style.width = porcentagem + "%";
-    }
-}
-
-function verificar(botao, eCorreto) {
-    const todosBotoes = document.querySelectorAll('.option-btn');
-    todosBotoes.forEach(btn => btn.style.pointerEvents = 'none');
-
-    if (eCorreto) {
-        botao.classList.add('correct');
-    } else {
-        botao.classList.add('wrong');
     }
 }
