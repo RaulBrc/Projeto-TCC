@@ -1,8 +1,12 @@
+from sqlalchemy import text
 from sqlalchemy.exc import IntegrityError
 from flask import Flask, render_template, request, jsonify, session, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 import os
+import logging
 from datetime import datetime, timedelta
+
+logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
 
@@ -20,13 +24,14 @@ db = SQLAlchemy(app)
 # ==============================================================================
 
 class Usuario(db.Model):
-    id = db.Column(db.String(128), primary_key=True) 
+    id = db.Column(db.String(128), primary_key=True)
     nome = db.Column(db.String(100))
     email = db.Column(db.String(100), unique=True)
     xp = db.Column(db.Integer, default=0)
     diamantes = db.Column(db.Integer, default=0)
     vidas = db.Column(db.Integer, default=5)
     bloqueado_ate = db.Column(db.DateTime, nullable=True)
+    ultima_restauracao_vidas = db.Column(db.DateTime, nullable=True, default=datetime.utcnow)
 
 class Licao(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -44,11 +49,37 @@ class Progresso(db.Model):
 # PARTE 2: FUNÇÕES DE SUPORTE E SINCRONIZAÇÃO DO FIREBASE
 # ==============================================================================
 
+def sincronizar_vidas_usuario(usuario):
+    if not usuario:
+        return None
+
+    agora = datetime.utcnow()
+
+    if usuario.bloqueado_ate and usuario.bloqueado_ate <= agora:
+        usuario.bloqueado_ate = None
+        usuario.vidas = 5
+
+    if not usuario.ultima_restauracao_vidas:
+        usuario.ultima_restauracao_vidas = agora
+
+    while usuario.vidas < 5 and agora >= usuario.ultima_restauracao_vidas + timedelta(minutes=20):
+        usuario.vidas += 1
+        usuario.ultima_restauracao_vidas += timedelta(minutes=20)
+
+    if usuario.vidas > 5:
+        usuario.vidas = 5
+
+    db.session.commit()
+    return usuario
+
+
 def obter_usuario_sessao():
     uid_logado = session.get('usuario_id')
     if not uid_logado:
         return None
-    return Usuario.query.get(uid_logado)
+
+    usuario = Usuario.query.get(uid_logado)
+    return sincronizar_vidas_usuario(usuario)
 
 # ==============================================================================
 # LÓGICA DO TIMER OFFLINE E RECUPERAÇÃO DE VIDAS
@@ -108,9 +139,9 @@ def salvar_usuario_firebase():
             usuario = Usuario(id=uid, nome=nome, email=email, vidas=5, xp=0, diamantes=0)
             db.session.add(usuario)
             db.session.commit()
-            print(f"🆕 Usuário [{email}] registrado com sucesso no trituno.db via UID!")
+            logger.info("Usuario %s registrado com sucesso no trituno.db via UID.", email)
         else:
-            print(f"🔄 Usuário [{email}] já tem registro local. Sincronizando sessão.")
+            logger.info("Usuario %s ja tem registro local. Sincronizando sessao.", email)
 
         session['usuario_id'] = uid
         return jsonify({"status": "sucesso", "mensagem": "Usuário local sincronizado com Firebase"}), 200
@@ -121,7 +152,7 @@ def salvar_usuario_firebase():
 
     except Exception as e:
         db.session.rollback()
-        print(f"💥 Erro na sincronização Firebase: {str(e)}")
+        logger.exception("Falha ao sincronizar com banco local")
         return jsonify({"status": "erro", "mensagem": str(e)}), 500
 
 
@@ -268,18 +299,24 @@ def concluir_licao():
             db.session.add(novo_progresso)
             usuario.xp += 10
             db.session.commit()
-            print(f"🚀 Sucesso: Lição {licao_id} computada para o UID: {usuario.id}")
+            logger.info("Licao %s computada para o UID: %s", licao_id, usuario.id)
             return jsonify({
                 "status": "sucesso",
                 "mensagem": "Progresso gravado localmente!",
+                "progresso": calcular_barra_progresso(usuario),
                 "xp_total": usuario.xp
             })
 
-        return jsonify({"status": "sucesso", "mensagem": "Esta lição já havia sido concluída."})
+        return jsonify({
+            "status": "sucesso",
+            "mensagem": "Esta lição já havia sido concluída.",
+            "progresso": calcular_barra_progresso(usuario),
+            "xp_total": usuario.xp
+        })
 
     except Exception as e:
         db.session.rollback()
-        app.logger.error(f"Erro ao concluir lição: {str(e)}")
+        logger.exception("Erro ao registrar conclusao da licao")
         return jsonify({"status": "erro", "mensagem": str(e)}), 500
 
 
@@ -289,47 +326,52 @@ def perder_vida():
     if not usuario:
         return jsonify({"status": "erro", "mensagem": "Usuário não localizado"}), 404
 
-    if usuario.vidas == 0:
-        if usuario.bloqueado_ate and usuario.bloqueado_ate < datetime.now():
-            usuario.vidas = 5
-            usuario.bloqueado_ate = None
-            db.session.commit()
-            return jsonify({"status": "desbloqueado", "vidas_restantes": usuario.vidas, "bloqueado_ate": None}), 200
-        else:
-            return jsonify({
-                "status": "ja_bloqueado",
-                "mensagem": f"Usuário bloqueado até {usuario.bloqueado_ate.strftime('%d/%m/%Y %H:%M')}."
-            }), 400
+    if usuario.bloqueado_ate and usuario.bloqueado_ate > datetime.utcnow():
+        return jsonify({
+            "status": "bloqueado",
+            "mensagem": f"Usuário bloqueado até {usuario.bloqueado_ate.strftime('%d/%m/%Y %H:%M')}.",
+            "vidas_restantes": usuario.vidas
+        }), 400
 
     if usuario.vidas > 0:
         usuario.vidas -= 1
+        usuario.ultima_restauracao_vidas = datetime.utcnow()
         if usuario.vidas == 0:
-            usuario.bloqueado_ate = datetime.now() + timedelta(hours=2)
+            usuario.bloqueado_ate = datetime.utcnow() + timedelta(hours=2)
         db.session.commit()
         return jsonify({"status": "sucesso", "vidas_restantes": usuario.vidas}), 200
 
-    return jsonify({"status": "erro", "mensagem": "Caso inesperado"}), 500
+    return jsonify({"status": "bloqueado", "mensagem": "Usuário sem vidas restantes.", "vidas_restantes": 0}), 400
+
+
+def garantir_colunas_usuario():
+    colunas = [coluna['name'] for coluna in db.inspect(db.engine).get_columns('usuario')]
+    if 'ultima_restauracao_vidas' not in colunas:
+        with db.engine.begin() as conn:
+            conn.execute(text('ALTER TABLE usuario ADD COLUMN ultima_restauracao_vidas DATETIME'))
+
+
+with app.app_context():
+    db.create_all()
+    garantir_colunas_usuario()
 
 
 # ==============================================================================
 # INICIALIZAÇÃO AUTOMÁTICA DO BANCO E DO SERVIDOR
 # ==============================================================================
 if __name__ == '__main__':
-    # 1. Cria a pasta instance se não existir
     os.makedirs(os.path.join(base_dir, 'instance'), exist_ok=True)
-    
-    # 2. Prepara o banco e popula os dados iniciais ANTES de ligar o servidor
+
     with app.app_context():
         db.create_all()
-        
-        # Popula as lições iniciais caso a tabela esteja vazia
+        garantir_colunas_usuario()
+
         if Licao.query.count() == 0:
             licao1 = Licao(id=1, modulo=1, titulo="As Figuras Musicais", conteudo="Introdução às figuras e pausas")
             licao2 = Licao(id=2, modulo=1, titulo="Exercício 1", conteudo="Primeiros exercícios práticos")
             db.session.add_all([licao1, licao2])
             db.session.commit()
-            print("🎶 Lições iniciais cadastradas no trituno.db!")
+            logger.info("Lições iniciais cadastradas no trituno.db!")
 
-    # 3. Liga o servidor por último
     porta = int(os.environ.get("PORT", 5000))
     app.run(host='0.0.0.0', port=porta)

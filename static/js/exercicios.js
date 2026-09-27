@@ -5,6 +5,24 @@ let totalEtapas = 6;
 let opcaoCorretaAtiva = false;
 let opcaoSelecionada = null;
 
+function atualizarProgressoLocal(licaoId) {
+    const chave = document.body.dataset.licao || `trituno_licao_${licaoId}`;
+    localStorage.setItem(chave, 'concluida');
+
+    const nodes = document.querySelectorAll('.node');
+    const totalLicoes = nodes.length || 4;
+    let concluidas = 0;
+
+    for (let i = 1; i <= totalLicoes; i++) {
+        if (localStorage.getItem(`trituno_licao_${i}`) === 'concluida') {
+            concluidas += 1;
+        }
+    }
+
+    const porcentagem = Math.min(100, Math.round((concluidas / totalLicoes) * 100));
+    localStorage.setItem('progress-bar', String(porcentagem));
+}
+
 // Inicializa a lição contando quantas telas existem
 window.addEventListener('DOMContentLoaded', () => {
     totalEtapas = document.querySelectorAll('.tela-exercicio').length;
@@ -83,17 +101,26 @@ async function proximaAcao() {
                 const resultado = await resposta.json();
                 
                 if (resultado.status === 'sucesso') {
-                    const aviso = document.getElementById('aviso-recompensa');
-                    if (aviso) {
-                        aviso.style.display = 'block'; // Mostra o card verde flutuante
+                    const progressoAtual = typeof resultado.progresso === 'number'
+                        ? resultado.progresso
+                        : null;
+
+                    if (progressoAtual !== null) {
+                        localStorage.setItem('progress-bar', String(progressoAtual));
                     }
 
-                    // Espera 3 segundos com o aviso na tela antes de redirecionar
+                    atualizarProgressoLocal(licaoId);
+
+                    const aviso = document.getElementById('aviso-recompensa');
+                    if (aviso) {
+                        aviso.style.display = 'block';
+                    }
+
                     setTimeout(() => {
                         window.location.href = '/licoes';
                     }, 3000);
-                    
-                    return; 
+
+                    return;
                 } else {
                     console.error("Erro do servidor:", resultado.mensagem);
                     alert("Aviso: " + (resultado.mensagem || "Erro ao salvar os pontos."));

@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="/static/css/loja.css"> 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
-<body>
+<body data-progresso="{{ progresso }}">
 
     <aside class="sidebar">
         <div class="logo">
@@ -147,23 +147,21 @@
     </main>
 
 <script>
-    document.addEventListener("DOMContentLoaded", function() {
-        // Pega o valor exato que o seu licoes.js salvou
-        let progressoSalvo = localStorage.getItem('progress-bar');
+document.addEventListener("DOMContentLoaded", function() {
+    const progressoServidor = Number(document.body.dataset.progresso ?? localStorage.getItem('progress-bar') ?? 0);
+    const progressoSalvo = Number.isFinite(progressoServidor) ? progressoServidor : Number(localStorage.getItem('progress-bar') ?? 0);
+    localStorage.setItem('progress-bar', String(progressoSalvo));
 
-        if (progressoSalvo !== null) {
-            // Procura a barra de preenchimento e o texto na sidebar desta página
-            let fill = document.querySelector('.progress-fill');
-            let text = document.querySelector('.progress-text');
+    let fill = document.querySelector('.progress-fill');
+    let text = document.querySelector('.progress-text');
 
-            if (fill) {
-                fill.style.width = progressoSalvo + '%';
-            }
-            if (text) {
-                text.innerText = progressoSalvo + '% concluído';
-            }
-        }
-    });
+    if (fill) {
+        fill.style.width = progressoSalvo + '%';
+    }
+    if (text) {
+        text.innerText = progressoSalvo + '% concluído';
+    }
+});
 </script>
 
 </body>
