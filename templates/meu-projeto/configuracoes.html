@@ -47,30 +47,29 @@
                 <div class="avatar-upload-container">
                     <div class="avatar-preview">
                         <i class="fas fa-user-musical"></i>
-                        <!-- Substitua por uma imagem padrão de avatar se preferir -->
-                        <img src="https://api.dicebear.com/7.x/bottts/svg?seed=trituno" alt="Avatar do Usuário" id="user-avatar">
+                        <img src="https://api.dicebear.com/7.x/bottts/svg?seed={{ usuario.nickname or usuario.id }}" alt="Avatar do Usuário" id="user-avatar">
                     </div>
                     <button class="btn-change-avatar"><i class="fas fa-camera"></i></button>
                 </div>
                 
-                <h2 class="profile-display-name">Músico Aprendiz</h2>
-                <p class="profile-username">@musico_trituno</p>
-                <p class="profile-join-date"><i class="far fa-calendar-alt"></i> Entrou em Maio de 2026</p>
+                <h2 class="profile-display-name">{{ usuario.nome or 'Músico Aprendiz' }}</h2>
+                <p class="profile-username">@{{ usuario.nickname or 'usuario' }}</p>
+                <p class="profile-join-date"><i class="fas fa-envelope"></i> <span id="profileEmailDisplay">{{ usuario.email }}</span></p>
             </div>
 
             <!-- Bloco de Estatísticas do Usuário dentro do Perfil -->
             <div class="stats-grid-container">
                 <div class="stat-card auth-box">
-                    <i class="fas fa-fire icon-streak"></i>
+                    <i class="fas fa-music icon-streak"></i>
                     <div class="stat-info">
-                        <span class="stat-value">7</span>
-                        <span class="stat-label">Dias de Ofensiva</span>
+                        <span class="stat-value">{{ licoes_concluidas }}</span>
+                        <span class="stat-label">Lições concluídas</span>
                     </div>
                 </div>
                 <div class="stat-card auth-box">
                     <i class="fas fa-bolt icon-xp"></i>
                     <div class="stat-info">
-                        <span class="stat-value">1250</span>
+                        <span class="stat-value">{{ usuario.xp or 0 }}</span>
                         <span class="stat-label">XP Total</span>
                     </div>
                 </div>
@@ -79,22 +78,28 @@
 
         <!-- Coluna da Direita: Formulários e Ajustes Técnicos -->
         <div class="profile-right-column">
+            <form id="profileForm">
             <div class="settings-card auth-box">
                 <h3 class="settings-section-title">Dados da Conta</h3>
                 
                 <div class="input-group">
-                    <label>Nome Completo</label>
-                    <input type="text" value="Músico Aprendiz">
+                    <label for="profileName">Nome</label>
+                    <input type="text" id="profileName" name="nome" value="{{ usuario.nome or '' }}" maxlength="100" autocomplete="name" required>
                 </div>
 
                 <div class="input-group">
-                    <label>E-mail</label>
-                    <input type="email" value="estudante@trituno.com.br">
+                    <label for="profileEmail">E-mail</label>
+                    <input type="email" id="profileEmail" name="email" value="{{ usuario.email }}" maxlength="100" autocomplete="email" required>
                 </div>
 
                 <div class="input-group">
-                    <label>Nova Senha</label>
-                    <input type="password" placeholder="••••••••">
+                    <label for="currentPassword">Senha atual</label>
+                    <input type="password" id="currentPassword" autocomplete="current-password" placeholder="Necessária para trocar e-mail ou senha">
+                </div>
+
+                <div class="input-group">
+                    <label for="newPassword">Nova senha</label>
+                    <input type="password" id="newPassword" autocomplete="new-password" minlength="6" placeholder="Deixe em branco para manter a senha atual">
                 </div>
             </div>
 
@@ -126,13 +131,130 @@
 
             <!-- Ações Globais -->
             <div class="settings-form-actions">
-                <button class="btn-primary">Salvar Alterações</button>
+                <button type="submit" class="btn-primary" id="saveProfileButton">Salvar Alterações</button>
+                <button type="button" class="btn-logout" id="logoutButton"><i class="fas fa-right-from-bracket"></i> Sair da conta</button>
             </div>
+            <p class="settings-feedback" id="settingsFeedback" role="status" aria-live="polite"></p>
+            </form>
         </div>
 
     </div>
 
 </main>
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import {
+        EmailAuthProvider,
+        getAuth,
+        onAuthStateChanged,
+        reauthenticateWithCredential,
+        signOut,
+        updateEmail,
+        updatePassword,
+        updateProfile
+    } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyBrRC9ZETyyJlQncMkAdfg-kfhf9KfG-uY",
+        authDomain: "trituno.firebaseapp.com",
+        projectId: "trituno",
+        storageBucket: "trituno.firebasestorage.app",
+        messagingSenderId: "401176009057",
+        appId: "1:401176009057:web:d4e8caa56a90f1d44c4d20",
+        measurementId: "G-3YJYY7TDKL"
+    };
+
+    const auth = getAuth(initializeApp(firebaseConfig));
+    const form = document.getElementById('profileForm');
+    const feedback = document.getElementById('settingsFeedback');
+    const saveButton = document.getElementById('saveProfileButton');
+    const logoutButton = document.getElementById('logoutButton');
+
+    function aguardarUsuarioFirebase() {
+        return new Promise((resolve) => {
+            let cancelarObservacao = () => {};
+            cancelarObservacao = onAuthStateChanged(auth, (user) => {
+                cancelarObservacao();
+                resolve(user);
+            });
+        });
+    }
+
+    form.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        feedback.textContent = '';
+        saveButton.disabled = true;
+
+        const nome = document.getElementById('profileName').value.trim();
+        const email = document.getElementById('profileEmail').value.trim().toLowerCase();
+        const senhaAtual = document.getElementById('currentPassword').value;
+        const novaSenha = document.getElementById('newPassword').value;
+
+        try {
+            const validacao = await fetch('/api/atualizar-perfil', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ nome, email, validar: true })
+            });
+            const resultadoValidacao = await validacao.json();
+            if (!validacao.ok) throw new Error(resultadoValidacao.mensagem || 'Não foi possível validar os dados.');
+
+            const user = await aguardarUsuarioFirebase();
+            if (!user) throw new Error('Sua sessão do Firebase expirou. Entre novamente para alterar a conta.');
+
+            const emailMudou = email !== (user.email || '').toLowerCase();
+            const senhaMudou = novaSenha.length > 0;
+            if (senhaMudou && novaSenha.length < 6) {
+                throw new Error('A nova senha deve ter pelo menos 6 caracteres.');
+            }
+            if ((emailMudou || senhaMudou) && !senhaAtual) {
+                throw new Error('Informe sua senha atual para alterar o e-mail ou a senha.');
+            }
+
+            if (emailMudou || senhaMudou) {
+                const credencial = EmailAuthProvider.credential(user.email, senhaAtual);
+                await reauthenticateWithCredential(user, credencial);
+            }
+            if (emailMudou) await updateEmail(user, email);
+            if (senhaMudou) await updatePassword(user, novaSenha);
+            if (nome !== (user.displayName || '')) await updateProfile(user, { displayName: nome });
+
+            const resposta = await fetch('/api/atualizar-perfil', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ nome, email })
+            });
+            const resultado = await resposta.json();
+            if (!resposta.ok) throw new Error(resultado.mensagem || 'Não foi possível salvar os dados.');
+
+            document.querySelector('.profile-display-name').textContent = nome;
+            document.getElementById('profileEmailDisplay').textContent = email;
+            document.getElementById('currentPassword').value = '';
+            document.getElementById('newPassword').value = '';
+            feedback.textContent = 'Alterações salvas com sucesso.';
+            feedback.classList.add('is-success');
+        } catch (error) {
+            feedback.textContent = error.message || 'Não foi possível salvar as alterações.';
+            feedback.classList.remove('is-success');
+        } finally {
+            saveButton.disabled = false;
+        }
+    });
+
+    logoutButton.addEventListener('click', async () => {
+        logoutButton.disabled = true;
+        try {
+            await signOut(auth);
+        } catch (error) {
+            console.error('Não foi possível encerrar a sessão Firebase:', error);
+        }
+        try {
+            await fetch('/logout', { method: 'POST' });
+        } finally {
+            window.location.replace('/login');
+        }
+    });
+</script>
 <script src="/static/js/licoes.js"></script>
 </body>
 </html>

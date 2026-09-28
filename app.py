@@ -263,7 +263,70 @@ def pagina_configuracoes():
         return redirect(url_for('pagina_login'))
     
     progresso = calcular_barra_progresso(usuario)
-    return render_template('meu-projeto/configuracoes.html', usuario=usuario, progresso=progresso)
+    licoes_concluidas = Progresso.query.filter_by(usuario_id=usuario.id, concluido=True).count()
+    return render_template(
+        'meu-projeto/configuracoes.html',
+        usuario=usuario,
+        progresso=progresso,
+        licoes_concluidas=licoes_concluidas,
+    )
+
+
+@app.route('/api/atualizar-perfil', methods=['POST'])
+def atualizar_perfil():
+    usuario = obter_usuario_sessao()
+    if not usuario:
+        return jsonify({'status': 'erro', 'mensagem': 'Sessão expirada. Entre novamente.'}), 401
+
+    dados = request.get_json(silent=True)
+    if not isinstance(dados, dict):
+        return jsonify({'status': 'erro', 'mensagem': 'Dados inválidos.'}), 400
+
+    nome = (dados.get('nome') or '').strip()
+    email = (dados.get('email') or '').strip().lower()
+    if not nome or len(nome) > 100:
+        return jsonify({'status': 'erro', 'mensagem': 'Informe um nome com até 100 caracteres.'}), 400
+    if (
+        not email
+        or len(email) > 100
+        or email.count('@') != 1
+        or '.' not in email.rsplit('@', 1)[1]
+    ):
+        return jsonify({'status': 'erro', 'mensagem': 'Informe um e-mail válido.'}), 400
+
+    email_em_uso = Usuario.query.filter(
+        Usuario.email == email,
+        Usuario.id != usuario.id,
+    ).first()
+    if email_em_uso:
+        return jsonify({'status': 'erro', 'mensagem': 'Este e-mail já está em uso.'}), 409
+
+    if dados.get('validar') is True:
+        return jsonify({'status': 'sucesso'})
+
+    try:
+        usuario.nome = nome
+        usuario.email = email
+        db.session.commit()
+        return jsonify({
+            'status': 'sucesso',
+            'mensagem': 'Dados da conta atualizados.',
+            'nome': usuario.nome,
+            'email': usuario.email,
+        })
+    except IntegrityError:
+        db.session.rollback()
+        return jsonify({'status': 'erro', 'mensagem': 'Este e-mail já está em uso.'}), 409
+    except Exception:
+        db.session.rollback()
+        logger.exception('Falha ao atualizar perfil do usuário %s', usuario.id)
+        return jsonify({'status': 'erro', 'mensagem': 'Não foi possível salvar as alterações.'}), 500
+
+
+@app.route('/logout', methods=['POST'])
+def logout():
+    session.clear()
+    return jsonify({'status': 'sucesso'})
 
 @app.route('/apostila')
 def pagina_apostila():

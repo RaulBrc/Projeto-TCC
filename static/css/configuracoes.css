@@ -486,3 +486,72 @@ input:checked + .slider-round:before {
 .btn-back i {
     font-size: 1.2rem;
 }
+
+#profileForm {
+    width: 100%;
+}
+
+.settings-form-actions {
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.settings-form-actions .btn-logout {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    width: auto;
+    max-width: none;
+    min-height: 58px;
+    padding: 14px 22px;
+    background: #d93636;
+    color: #fff;
+    font-size: 1rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border: 0;
+    border-bottom: 5px solid #9f2020;
+    border-radius: 16px;
+    cursor: pointer;
+    transition: transform 0.1s, filter 0.2s;
+}
+
+.settings-form-actions .btn-logout:hover {
+    filter: brightness(1.08);
+}
+
+.settings-form-actions .btn-logout:active {
+    transform: translateY(3px);
+    border-bottom-width: 2px;
+}
+
+.settings-form-actions button:disabled {
+    cursor: wait;
+    opacity: 0.65;
+}
+
+.settings-feedback {
+    min-height: 1.4em;
+    margin-top: 12px;
+    color: var(--error);
+    font-weight: 700;
+}
+
+.settings-feedback.is-success {
+    color: #328312;
+}
+
+@media (max-width: 480px) {
+    .settings-form-actions {
+        justify-content: stretch;
+    }
+
+    .settings-form-actions .btn-primary,
+    .settings-form-actions .btn-logout {
+        width: 100%;
+        max-width: none;
+    }
+}
