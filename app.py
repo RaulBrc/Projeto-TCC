@@ -236,6 +236,45 @@ def pagina_exercicio1():
     return render_template('modulo1/exercicio1.html')
 
 
+@app.route('/exercicio2')
+def pagina_exercicio2():
+    usuario = obter_usuario_sessao()
+    if not usuario:
+        return redirect(url_for('pagina_login'))
+
+    verificar_e_atualizar_vidas(usuario)
+    if usuario.vidas == 0:
+        return redirect(url_for('pagina_licoes'))
+
+    return render_template('modulo1/exercicio2.html')
+
+
+@app.route('/exercicio3')
+def pagina_exercicio3():
+    usuario = obter_usuario_sessao()
+    if not usuario:
+        return redirect(url_for('pagina_login'))
+
+    verificar_e_atualizar_vidas(usuario)
+    if usuario.vidas == 0:
+        return redirect(url_for('pagina_licoes'))
+
+    return render_template('modulo1/exercicio3.html')
+
+
+@app.route('/exercicio4')
+def pagina_exercicio4():
+    usuario = obter_usuario_sessao()
+    if not usuario:
+        return redirect(url_for('pagina_login'))
+
+    verificar_e_atualizar_vidas(usuario)
+    if usuario.vidas == 0:
+        return redirect(url_for('pagina_licoes'))
+
+    return render_template('modulo1/exercicio4.html')
+
+
 @app.route('/loja')
 def pagina_loja():
     usuario = obter_usuario_sessao()
