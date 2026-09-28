@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trituno - Lição 2</title>
+    <link rel="stylesheet" href="/static/css/exercicios.css">
+    <link rel="stylesheet" href="/static/css/responsivo.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Music&display=swap" rel="stylesheet">
+</head>
+<body class="page-exercicio" data-licao="trituno_licao_2">
+
+    <main class="exercicio-container">
+        <div id="progresso-interno" style="width: 100%; height: 12px; background: #e5e5e5; border-radius: 10px; margin-bottom: 30px; overflow: hidden;">
+            <div id="barra-interna" style="width: 0%; height: 100%; background: #07c088; transition: width 0.4s ease;"></div>
+        </div>
+
+        <!-- TELA 1: Apresentação da Colcheia -->
+        <div class="tela-exercicio" id="tela1">
+            <h1 class="pergunta-titulo">Qual o nome desta nova figura?</h1>
+            <div class="nota-musical" style="font-size: 100px; margin-bottom: 20px;">&#x1D160;</div> 
+            <div class="opcoes-lista">
+                <button class="opcao-btn" onclick="selecionar(this, 'correta')">Colcheia</button>
+                <button class="opcao-btn" onclick="selecionar(this)">Semínima</button>
+                <button class="opcao-btn" onclick="selecionar(this)">Mínima</button>
+            </div>
+        </div>
+
+        <!-- TELA 2: Identificação de Valor da Colcheia -->
+        <div class="tela-exercicio" id="tela2" style="display: none;">
+            <h1 class="pergunta-titulo">Quanto vale uma <strong>Colcheia ( &#x1D160; )</strong> na divisão tradicional?</h1>
+            <div class="opcoes-lista">
+                <button class="opcao-btn" onclick="selecionar(this, 'correta')">Meio tempo (1/2)</button>
+                <button class="opcao-btn" onclick="selecionar(this)">1 tempo inteiro</button>
+                <button class="opcao-btn" onclick="selecionar(this)">2 tempos</button>
+            </div>
+        </div>
+
+        <!-- TELA 3: Seleção Gráfica da Colcheia -->
+        <div class="tela-exercicio" id="tela3" style="display: none;">
+            <h1 class="pergunta-titulo">Toque na <strong>Colcheia</strong>:</h1>
+            <div class="grid-opcoes">
+                <div class="card-opcao" onclick="selecionar(this)">
+                    <span class="nota-musical">&#x1D15F;</span>
+                    <p>Semínima</p>
+                </div>
+
+                <div class="card-opcao" onclick="selecionar(this, 'correta')">
+                    <span class="nota-musical">&#x1D160;</span>
+                    <p>Colcheia</p>
+                </div>
+
+                <div class="card-opcao" onclick="selecionar(this)">
+                    <span class="nota-musical">&#x1D15E;</span>
+                    <p>Mínima</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- TELA 4: Equivalência Intermediária (Soma com Colcheias) -->
+        <div class="tela-exercicio" id="tela4" style="display: none;">
+            <h1 class="pergunta-titulo">Duas <strong>Colcheias ( &#x1D160; + &#x1D160; )</strong> equivalem a qual figura?</h1>
+            <div class="grid-opcoes">
+                <div class="card-opcao" onclick="selecionar(this, 'correta')">
+                    <span class="nota-musical">&#x1D15F;</span>
+                    <p>1 Semínima (1 tempo)</p>
+                </div>
+                <div class="card-opcao" onclick="selecionar(this)">
+                    <span class="nota-musical">&#x1D15E;</span>
+                    <p>1 Mínima (2 tempos)</p>
+                </div>
+                <div class="card-opcao" onclick="selecionar(this)">
+                    <span class="nota-musical">&#x1D15D;</span>
+                    <p>1 Semibreve (4 tempos)</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- TELA 5: Matemática Musical Avançada -->
+        <div class="tela-exercicio" id="tela5" style="display: none;">
+            <h1 class="pergunta-titulo">Qual é o resultado de: <strong>Mínima (2) + Semínima (1) + Semínima (1)</strong>?</h1>
+            <div class="opcoes-lista">
+                <button class="opcao-btn" onclick="selecionar(this, 'correta')">4 tempos (1 Semibreve)</button>
+                <button class="opcao-btn" onclick="selecionar(this)">3 tempos</button>
+                <button class="opcao-btn" onclick="selecionar(this)">2 tempos (1 Mínima)</button>
+            </div>
+        </div>
+
+        <!-- TELA 6: Equivalência de 4 Figuras -->
+        <div class="tela-exercicio" id="tela6" style="display: none;">
+            <h1 class="pergunta-titulo">Quantas <strong>Semínimas ( &#x1D15F; )</strong> são necessárias para formar 1 <strong>Semibreve ( &#x1D15D; )</strong>?</h1>
+            <div class="grid-opcoes">
+                <div class="card-opcao" onclick="selecionar(this)">
+                    <span class="nota-musical">&#x1D15F; &#x1D15F;</span>
+                    <p>2 Semínimas</p>
+                </div>
+
+                <div class="card-opcao" onclick="selecionar(this, 'correta')">
+                    <span class="nota-musical">&#x1D15F; &#x1D15F; &#x1D15F; &#x1D15F;</span>
+                    <p>4 Semínimas</p>
+                </div>
+
+                <div class="card-opcao" onclick="selecionar(this)">
+                    <span class="nota-musical">&#x1D15F; &#x1D15F; &#x1D15F;</span>
+                    <p>3 Semínimas</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer-verificacao">
+        <button class="btn-verificar" onclick="verificarPasso()">Prosseguir</button>
+    </footer>
+
+    <div id="feedbackModal" class="modal-feedback">
+        <div class="modal-content">
+            <div class="feedback-info">
+                <i id="feedbackIcon" class="fa-solid"></i>
+                <h2 id="feedbackMsg"></h2>
+            </div>
+            <button id="btnContinuar" data-licao-id="3" class="btn-verificar" onclick="proximaAcao()">Continuar</button>
+        </div>
+    </div>
+
+    <div id="aviso-recompensa" style="display: none; position: fixed; top: 20px; right: 20px; background-color: #2ecc71; color: white; padding: 15px 25px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); z-index: 1000; font-family: sans-serif;">
+        <h4 style="margin: 0 0 5px 0;">🎵 Lição 2 Concluída!</h4>
+        <p style="margin: 0;">Você ganhou +15 XP</p>
+    </div>
+
+    <script src="/static/js/exercicios.js"></script>
+</body>
+</html>

@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trituno - Lição 4 (Desafio Final)</title>
+    <link rel="stylesheet" href="/static/css/exercicios.css">
+    <link rel="stylesheet" href="/static/css/responsivo.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Music&display=swap" rel="stylesheet">
+</head>
+<body class="page-exercicio" data-licao="trituno_licao_4">
+
+    <main class="exercicio-container">
+        <div id="progresso-interno" style="width: 100%; height: 12px; background: #e5e5e5; border-radius: 10px; margin-bottom: 30px; overflow: hidden;">
+            <div id="barra-interna" style="width: 0%; height: 100%; background: #07c088; transition: width 0.4s ease;"></div>
+        </div>
+
+        <!-- TELA 1: Desafio de Leitura Rápida e Identificação de Pausa -->
+        <div class="tela-exercicio" id="tela1">
+            <h1 class="pergunta-titulo">Qual o nome desta figura de silêncio?</h1>
+            <div class="nota-musical" style="font-size: 100px; margin-bottom: 20px;">&#x1D13E;</div> 
+            <div class="opcoes-lista">
+                <button class="opcao-btn" onclick="selecionar(this, 'correta')">Pausa de Colcheia (1/2 tempo)</button>
+                <button class="opcao-btn" onclick="selecionar(this)">Pausa de Semínima (1 tempo)</button>
+                <button class="opcao-btn" onclick="selecionar(this)">Pausa de Mínima (2 tempos)</button>
+            </div>
+        </div>
+
+        <!-- TELA 2: Equação com 3 figuras diferentes -->
+        <div class="tela-exercicio" id="tela2" style="display: none;">
+            <h1 class="pergunta-titulo">Qual o total de tempos de: <strong>Mínima (2) + Colcheia (1/2) + Colcheia (1/2)</strong>?</h1>
+            <div class="opcoes-lista">
+                <button class="opcao-btn" onclick="selecionar(this, 'correta')">3 tempos (Equivale a Mínima + Semínima)</button>
+                <button class="opcao-btn" onclick="selecionar(this)">4 tempos</button>
+                <button class="opcao-btn" onclick="selecionar(this)">2 tempos e meio</button>
+            </div>
+        </div>
+
+        <!-- TELA 3: Proporção e Multiplicação Musical -->
+        <div class="tela-exercicio" id="tela3" style="display: none;">
+            <h1 class="pergunta-titulo">Quantas <strong>Colcheias ( &#x1D160; )</strong> são necessárias para formar 1 <strong>Mínima ( &#x1D15E; )</strong>?</h1>
+            <div class="grid-opcoes">
+                <div class="card-opcao" onclick="selecionar(this)">
+                    <span class="nota-musical">&#x1D160; &#x1D160;</span>
+                    <p>2 Colcheias</p>
+                </div>
+
+                <div class="card-opcao" onclick="selecionar(this, 'correta')">
+                    <span class="nota-musical">&#x1D160; &#x1D160; &#x1D160; &#x1D160;</span>
+                    <p>4 Colcheias</p>
+                </div>
+
+                <div class="card-opcao" onclick="selecionar(this)">
+                    <span class="nota-musical">&#x1D160; &#x1D160; &#x1D160;</span>
+                    <p>3 Colcheias</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- TELA 4: Equação Avançada com Som + Pausas Variadas -->
+        <div class="tela-exercicio" id="tela4" style="display: none;">
+            <h1 class="pergunta-titulo">Qual soma resulta exatamente em <strong>4 tempos (1 Semibreve)</strong>?</h1>
+            <div class="opcoes-lista">
+                <button class="opcao-btn" onclick="selecionar(this, 'correta')">Mínima (2) + Pausa de Semínima (1) + Semínima (1)</button>
+                <button class="opcao-btn" onclick="selecionar(this)">Semínima (1) + Pausa de Mínima (2) + Colcheia (1/2)</button>
+                <button class="opcao-btn" onclick="selecionar(this)">Pausa de Mínima (2) + 2 Colcheias (1)</button>
+            </div>
+        </div>
+
+        <!-- TELA 5: Organização em Ordem Crescente -->
+        <div class="tela-exercicio" id="tela5" style="display: none;">
+            <h1 class="pergunta-titulo">Qual sequência está ordenada do <strong>menor para o maior valor</strong>?</h1>
+            <div class="opcoes-lista">
+                <button class="opcao-btn" onclick="selecionar(this, 'correta')">Colcheia (1/2) → Semínima (1) → Mínima (2) → Semibreve (4)</button>
+                <button class="opcao-btn" onclick="selecionar(this)">Semibreve (4) → Mínima (2) → Semínima (1) → Colcheia (1/2)</button>
+                <button class="opcao-btn" onclick="selecionar(this)">Semínima (1) → Colcheia (1/2) → Mínima (2) → Semibreve (4)</button>
+            </div>
+        </div>
+
+        <!-- TELA 6: Desafio Final de Módulo (Compação Completa) -->
+        <div class="tela-exercicio" id="tela6" style="display: none;">
+            <h1 class="pergunta-titulo">🏆 Desafio Final: Quantas <strong>Colcheias ( &#x1D160; )</strong> cabem dentro de 1 <strong>Semibreve ( &#x1D15D; )</strong>?</h1>
+            <div class="grid-opcoes">
+                <div class="card-opcao" onclick="selecionar(this)">
+                    <span class="nota-musical">&#x1D160; &#x1D160; &#x1D160; &#x1D160;</span>
+                    <p>4 Colcheias</p>
+                </div>
+
+                <div class="card-opcao" onclick="selecionar(this)">
+                    <span class="nota-musical">&#x1D160; &#x1D160; &#x1D160; &#x1D160; &#x1D160; &#x1D160;</span>
+                    <p>6 Colcheias</p>
+                </div>
+
+                <div class="card-opcao" onclick="selecionar(this, 'correta')">
+                    <span class="nota-musical">&#x1D160; x 8</span>
+                    <p>8 Colcheias</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer-verificacao">
+        <button class="btn-verificar" onclick="verificarPasso()">Prosseguir</button>
+    </footer>
+
+    <div id="feedbackModal" class="modal-feedback">
+        <div class="modal-content">
+            <div class="feedback-info">
+                <i id="feedbackIcon" class="fa-solid"></i>
+                <h2 id="feedbackMsg"></h2>
+            </div>
+            <button id="btnContinuar" data-licao-id="5" class="btn-verificar" onclick="proximaAcao()">Concluir Módulo 1</button>
+        </div>
+    </div>
+
+    <div id="aviso-recompensa" style="display: none; position: fixed; top: 20px; right: 20px; background-color: #2ecc71; color: white; padding: 15px 25px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); z-index: 1000; font-family: sans-serif;">
+        <h4 style="margin: 0 0 5px 0;">🏆 Módulo 1 Concluído!</h4>
+        <p style="margin: 0;">Você ganhou +30 XP e desbloqueou o próximo módulo!</p>
+    </div>
+
+    <script src="/static/js/exercicios.js"></script>
+</body>
+</html>
