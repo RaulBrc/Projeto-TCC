@@ -109,7 +109,7 @@ async function proximaAcao() {
                         localStorage.setItem('progress-bar', String(progressoAtual));
                     }
 
-                    atualizarProgressoLocal(licaoId);
+                    atualizarProgressoLocal(licaoIdNum);
 
                     const aviso = document.getElementById('aviso-recompensa');
                     if (aviso) {

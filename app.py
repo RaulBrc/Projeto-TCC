@@ -530,9 +530,31 @@ def garantir_colunas_usuario():
             conn.execute(text('ALTER TABLE usuario ADD COLUMN ultima_restauracao_vidas DATETIME'))
 
 
+def garantir_licoes_iniciais():
+    licoes_iniciais = {
+        1: ('As Figuras Musicais', 'Introdução às figuras e pausas'),
+        2: ('Exercício 1', 'Primeiros exercícios práticos'),
+        3: ('Exercício 2: Colcheias', 'Identificação e valores das colcheias'),
+        4: ('Exercício 3: Pausas', 'Identificação e duração das pausas musicais'),
+        5: ('Exercício 4: Desafio Final', 'Revisão de figuras, valores e pausas'),
+    }
+
+    for licao_id, (titulo, conteudo) in licoes_iniciais.items():
+        if not db.session.get(Licao, licao_id):
+            db.session.add(Licao(
+                id=licao_id,
+                modulo=1,
+                titulo=titulo,
+                conteudo=conteudo,
+            ))
+
+    db.session.commit()
+
+
 with app.app_context():
     db.create_all()
     garantir_colunas_usuario()
+    garantir_licoes_iniciais()
 
 
 # ==============================================================================
@@ -544,13 +566,7 @@ if __name__ == '__main__':
     with app.app_context():
         db.create_all()
         garantir_colunas_usuario()
-
-        if Licao.query.count() == 0:
-            licao1 = Licao(id=1, modulo=1, titulo="As Figuras Musicais", conteudo="Introdução às figuras e pausas")
-            licao2 = Licao(id=2, modulo=1, titulo="Exercício 1", conteudo="Primeiros exercícios práticos")
-            db.session.add_all([licao1, licao2])
-            db.session.commit()
-            logger.info("Lições iniciais cadastradas no trituno.db!")
+        garantir_licoes_iniciais()
 
     porta = int(os.environ.get("PORT", 5000))
     app.run(host='0.0.0.0', port=porta)
