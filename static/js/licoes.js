@@ -1,19 +1,17 @@
 // licoes.js
 
 function calcularProgressoLocal() {
-    const nodes = document.querySelectorAll('.node');
-    if (!nodes.length) return 0;
-
+    const totalLicoes = Number(document.body?.dataset?.totalLicoes) || 0;
+    if (!totalLicoes) return 0;
     let concluidos = 0;
-    nodes.forEach((node, index) => {
-        const numeroLicao = index + 1;
+    for (let numeroLicao = 1; numeroLicao <= totalLicoes; numeroLicao += 1) {
         const licaoId = `trituno_licao_${numeroLicao}`;
         if (localStorage.getItem(licaoId) === 'concluida') {
             concluidos += 1;
         }
-    });
+    }
 
-    return Math.min(100, Math.round((concluidos / nodes.length) * 100));
+    return Math.min(100, Math.round((concluidos / totalLicoes) * 100));
 }
 
 function configurarTrilha() {
@@ -21,9 +19,9 @@ function configurarTrilha() {
 
     if (nodes.length) {
         nodes.forEach((node, index) => {
-            const numeroLicao = index + 1;
+            const numeroLicao = Number(node.dataset.licaoId) || index + 1;
             const licaoId = `trituno_licao_${numeroLicao}`;
-            const licaoAnteriorId = `trituno_licao_${index}`;
+            const licaoAnteriorId = `trituno_licao_${numeroLicao - 1}`;
 
             const estaConcluida = localStorage.getItem(licaoId) === 'concluida';
             const anteriorConcluida = index === 0 || localStorage.getItem(licaoAnteriorId) === 'concluida';

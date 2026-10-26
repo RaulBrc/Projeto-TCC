@@ -9,8 +9,7 @@ function atualizarProgressoLocal(licaoId) {
     const chave = document.body.dataset.licao || `trituno_licao_${licaoId}`;
     localStorage.setItem(chave, 'concluida');
 
-    const nodes = document.querySelectorAll('.node');
-    const totalLicoes = nodes.length || 4;
+    const totalLicoes = Number(document.body.dataset.totalLicoes) || 5;
     let concluidas = 0;
 
     for (let i = 1; i <= totalLicoes; i++) {
@@ -159,7 +158,7 @@ async function proximaAcao() {
             } else if (resultado.status === 'sucesso') {
                 const elementoVidas = document.getElementById('contador-vidas');
                 if (elementoVidas) {
-                    elementoVidas.innerHTML = `❤️ ${resultado.vidas_restantes}/5`;
+                    elementoVidas.textContent = `${resultado.vidas_restantes}/${resultado.vidas_maximas || 5}`;
                 }
             }
         } catch (erro) {

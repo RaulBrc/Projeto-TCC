@@ -34,7 +34,13 @@
 
                 <button type="submit" class="btn-login">Entrar</button>
             </form>
+            <div class="auth-divider"><span>ou</span></div>
+            <button type="button" class="btn-google-login" id="googleLoginButton">
+                <i class="fab fa-google" aria-hidden="true"></i>
+                Entrar ou cadastrar com Google
+            </button>
             <a href="#" class="forgot-password">ESQUECI A SENHA</a>
+            <p class="login-feedback" id="loginFeedback" role="status" aria-live="polite"></p>
         </section>
 
         <footer class="register-box">
@@ -44,7 +50,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getAuth, GoogleAuthProvider, signInWithEmailAndPassword, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyBrRC9ZETyyJlQncMkAdfg-kfhf9KfG-uY",
@@ -58,6 +64,8 @@
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
+        const googleProvider = new GoogleAuthProvider();
+        const loginFeedback = document.getElementById('loginFeedback');
 
         // --- LÓGICA DO OLHINHO ---
         const togglePassword = document.querySelector('#eyeIcon');
@@ -101,6 +109,7 @@
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
+                        id_token: await user.getIdToken(),
                         uid: user.uid,
                         email: user.email,
                         nome: user.displayName || "Músico Aprendiz"
@@ -119,7 +128,35 @@
 
             } catch (error) {
                 console.error("Erro na autenticação:", error);
-                alert("Erro ao entrar: Verifique seu e-mail e senha.");
+                loginFeedback.textContent = error.message || 'Erro ao entrar. Verifique seu e-mail e senha.';
+            }
+        });
+
+        document.getElementById('googleLoginButton').addEventListener('click', async (event) => {
+            const button = event.currentTarget;
+            button.disabled = true;
+            loginFeedback.textContent = '';
+            try {
+                const userCredential = await signInWithPopup(auth, googleProvider);
+                const user = userCredential.user;
+                const resposta = await fetch('/api/salvar-usuario-firebase', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        id_token: await user.getIdToken(),
+                        nome: user.displayName || 'Músico Aprendiz'
+                    })
+                });
+                const resultado = await resposta.json();
+                if (!resposta.ok || resultado.status !== 'sucesso') {
+                    throw new Error(resultado.mensagem || 'Não foi possível sincronizar sua conta.');
+                }
+                window.location.href = '/licoes';
+            } catch (error) {
+                console.error('Erro no login Google:', error);
+                loginFeedback.textContent = error.message || 'Não foi possível entrar com Google.';
+            } finally {
+                button.disabled = false;
             }
         });
 

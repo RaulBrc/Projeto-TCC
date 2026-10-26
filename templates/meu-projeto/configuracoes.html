@@ -46,10 +46,15 @@
             <div class="profile-main-card auth-box">
                 <div class="avatar-upload-container">
                     <div class="avatar-preview">
-                        <i class="fas fa-user-musical"></i>
-                        <img src="https://api.dicebear.com/7.x/bottts/svg?seed={{ usuario.nickname or usuario.id }}" alt="Avatar do Usuário" id="user-avatar">
+                        {% if usuario.avatar_tipo == 'imagem' %}
+                        <img src="{{ usuario.avatar_valor }}" alt="Avatar do Usuário" id="user-avatar-image">
+                        <i class="{{ usuario.avatar_valor }}" id="user-avatar-icon" aria-hidden="true" hidden></i>
+                        {% else %}
+                        <img src="" alt="" id="user-avatar-image" hidden>
+                        <i class="{{ usuario.avatar_valor }}" id="user-avatar-icon" aria-hidden="true"></i>
+                        {% endif %}
                     </div>
-                    <button class="btn-change-avatar"><i class="fas fa-camera"></i></button>
+                    <button type="button" class="btn-change-avatar" id="openAvatarPicker" aria-label="Escolher avatar"><i class="fas fa-camera"></i></button>
                 </div>
                 
                 <h2 class="profile-display-name">{{ usuario.nome or 'Músico Aprendiz' }}</h2>
@@ -141,6 +146,24 @@
     </div>
 
 </main>
+<div class="avatar-modal" id="avatarModal" aria-hidden="true">
+    <section class="avatar-dialog" role="dialog" aria-modal="true" aria-labelledby="avatarDialogTitle">
+        <button type="button" class="avatar-modal-close" id="closeAvatarPicker" aria-label="Fechar seleção de avatar"><i class="fas fa-xmark"></i></button>
+        <h2 id="avatarDialogTitle">Escolher avatar</h2>
+        <div class="avatar-options">
+            {% for avatar in avatares %}
+                {% if (avatar.tipo ~ ':' ~ avatar.valor) in avatares_desbloqueados %}
+                <button type="button" class="avatar-option{% if usuario.avatar_tipo == avatar.tipo and usuario.avatar_valor == avatar.valor %} is-selected{% endif %}" data-avatar-type="{{ avatar.tipo }}" data-avatar-value="{{ avatar.valor }}" aria-label="{{ avatar.rotulo }}">
+                    {% if avatar.tipo == 'imagem' %}<img src="{{ avatar.valor }}" alt="">
+                    {% else %}<i class="{{ avatar.valor }}" aria-hidden="true"></i>{% endif %}
+                    <span>{{ avatar.rotulo }}</span>
+                </button>
+                {% endif %}
+            {% endfor %}
+        </div>
+        <p id="avatarFeedback" class="avatar-feedback" role="status" aria-live="polite"></p>
+    </section>
+</div>
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import {
@@ -256,5 +279,6 @@
     });
 </script>
 <script src="/static/js/licoes.js"></script>
+<script src="/static/js/avatares.js"></script>
 </body>
 </html>

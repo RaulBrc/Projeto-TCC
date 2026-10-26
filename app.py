@@ -1,10 +1,14 @@
 from sqlalchemy import text
+from sqlalchemy import func
 from sqlalchemy.exc import IntegrityError
 from flask import Flask, render_template, request, jsonify, session, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 import os
 import logging
+import json
 from datetime import datetime, timedelta
+from urllib.error import HTTPError, URLError
+from urllib.request import Request, urlopen
 
 logger = logging.getLogger(__name__)
 
@@ -17,7 +21,24 @@ app.config['SECRET_KEY'] = 'chave_secreta_para_o_trituno_2026'
 base_dir = os.path.abspath(os.path.dirname(__file__))
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(base_dir, 'instance', 'trituno.db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+FIREBASE_PROJECT_ID = os.environ.get('FIREBASE_PROJECT_ID', 'trituno')
+FIREBASE_WEB_API_KEY = os.environ.get(
+    'FIREBASE_WEB_API_KEY',
+    'AIzaSyBrRC9ZETyyJlQncMkAdfg-kfhf9KfG-uY',
+)
 db = SQLAlchemy(app)
+ultima_sincronizacao_firebase = None
+
+AVATARES_DISPONIVEIS = [
+    {"tipo": "icone", "valor": "fa-solid fa-user", "rotulo": "Músico"},
+    {"tipo": "icone", "valor": "fa-solid fa-robot", "rotulo": "Robô"},
+    {"tipo": "icone", "valor": "fa-solid fa-music", "rotulo": "Nota musical"},
+    {"tipo": "imagem", "valor": "/static/images/Trituno_logo.png", "rotulo": "Trituno"},
+    {"tipo": "imagem", "valor": "/static/images/Logo_tritunoNovo.png", "rotulo": "Mascote Trituno"},
+]
+AVATARES_DESBLOQUEADOS_PADRAO = [
+    f"{avatar['tipo']}:{avatar['valor']}" for avatar in AVATARES_DISPONIVEIS
+]
 
 # ==============================================================================
 # MODELOS DO BANCO DE DADOS (trituno.db)
@@ -31,8 +52,14 @@ class Usuario(db.Model):
     xp = db.Column(db.Integer, default=0)
     diamantes = db.Column(db.Integer, default=0)
     vidas = db.Column(db.Integer, default=5)
+    vidas_maximas = db.Column(db.Integer, default=5)
     bloqueado_ate = db.Column(db.DateTime, nullable=True)
     ultima_restauracao_vidas = db.Column(db.DateTime, nullable=True, default=datetime.utcnow)
+    avatar_tipo = db.Column(db.String(10), default='icone')
+    avatar_valor = db.Column(db.String(255), default='fa-solid fa-user')
+    avatares_desbloqueados = db.Column(db.Text, default='[]')
+    itens_json = db.Column(db.Text, default='{}')
+    firebase_ativo = db.Column(db.Boolean, default=True, nullable=False)
 
 class Apostila(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -65,17 +92,17 @@ def sincronizar_vidas_usuario(usuario):
 
     if usuario.bloqueado_ate and usuario.bloqueado_ate <= agora:
         usuario.bloqueado_ate = None
-        usuario.vidas = 5
+        usuario.vidas = usuario.vidas_maximas or 5
 
     if not usuario.ultima_restauracao_vidas:
         usuario.ultima_restauracao_vidas = agora
 
-    while usuario.vidas < 5 and agora >= usuario.ultima_restauracao_vidas + timedelta(minutes=20):
+    while usuario.vidas < (usuario.vidas_maximas or 5) and agora >= usuario.ultima_restauracao_vidas + timedelta(minutes=20):
         usuario.vidas += 1
         usuario.ultima_restauracao_vidas += timedelta(minutes=20)
 
-    if usuario.vidas > 5:
-        usuario.vidas = 5
+    if usuario.vidas > (usuario.vidas_maximas or 5):
+        usuario.vidas = usuario.vidas_maximas or 5
 
     db.session.commit()
     return usuario
@@ -88,6 +115,112 @@ def obter_usuario_sessao():
 
     usuario = Usuario.query.get(uid_logado)
     return sincronizar_vidas_usuario(usuario)
+
+
+def validar_token_firebase(id_token):
+    if not id_token:
+        raise ValueError('Token Firebase ausente.')
+
+    url = f'https://identitytoolkit.googleapis.com/v1/accounts:lookup?key={FIREBASE_WEB_API_KEY}'
+    request_firebase = Request(
+        url,
+        data=json.dumps({'idToken': id_token}).encode('utf-8'),
+        headers={'Content-Type': 'application/json'},
+        method='POST',
+    )
+    try:
+        with urlopen(request_firebase, timeout=8) as response:
+            dados = json.loads(response.read().decode('utf-8'))
+    except HTTPError as erro:
+        if erro.code in (400, 401):
+            raise ValueError('Token Firebase inválido ou expirado.') from erro
+        raise RuntimeError('Firebase não conseguiu validar a sessão.') from erro
+    except (URLError, TimeoutError) as erro:
+        raise RuntimeError('Serviço de autenticação temporariamente indisponível.') from erro
+
+    usuarios = dados.get('users') or []
+    if not usuarios or not usuarios[0].get('localId'):
+        raise ValueError('Token Firebase sem usuário válido.')
+    return usuarios[0]
+
+
+def sincronizar_diretorio_firebase():
+    global ultima_sincronizacao_firebase
+    agora = datetime.utcnow()
+    if ultima_sincronizacao_firebase and agora - ultima_sincronizacao_firebase < timedelta(minutes=2):
+        return
+
+    try:
+        import firebase_admin
+        from firebase_admin import auth
+
+        try:
+            firebase_admin.get_app()
+        except ValueError:
+            firebase_admin.initialize_app(options={'projectId': FIREBASE_PROJECT_ID})
+
+        usuarios_firebase = []
+        pagina = None
+        while True:
+            resultado = auth.list_users(max_results=1000, page_token=pagina)
+            usuarios_firebase.extend(resultado.users)
+            pagina = resultado.next_page_token
+            if not pagina:
+                break
+
+        Usuario.query.update({Usuario.firebase_ativo: False}, synchronize_session=False)
+        for perfil in usuarios_firebase:
+            if perfil.disabled:
+                continue
+
+            uid = perfil.uid
+            email = perfil.email or None
+            nome = (perfil.display_name or (email.split('@')[0] if email else '') or f'Músico {uid[:8]}').strip()
+            usuario = db.session.get(Usuario, uid)
+            email_em_uso = email and Usuario.query.filter(
+                Usuario.email == email,
+                Usuario.id != uid,
+            ).first()
+            if email_em_uso:
+                logger.warning('E-mail duplicado no banco local para o UID Firebase %s; sincronizando sem e-mail.', uid)
+                email = None
+
+            if not usuario:
+                nickname_base = nome[:42]
+                nickname = nickname_base
+                if Usuario.query.filter_by(nickname=nickname).first():
+                    nickname = f'{nickname_base[:42]}-{uid[-6:]}'
+                usuario = Usuario(
+                    id=uid,
+                    nome=nome[:100],
+                    email=email,
+                    nickname=nickname[:50],
+                    vidas=5,
+                    vidas_maximas=5,
+                    xp=0,
+                    diamantes=0,
+                    avatar_tipo='icone',
+                    avatar_valor='fa-solid fa-user',
+                    avatares_desbloqueados=json.dumps(AVATARES_DESBLOQUEADOS_PADRAO),
+                    itens_json='{}',
+                    firebase_ativo=True,
+                )
+                db.session.add(usuario)
+            else:
+                usuario.nome = nome[:100]
+                usuario.firebase_ativo = True
+                if email:
+                    usuario.email = email
+
+        db.session.commit()
+        ultima_sincronizacao_firebase = agora
+    except ImportError:
+        ultima_sincronizacao_firebase = agora
+        logger.warning('Firebase Admin SDK ausente; ranking usa os usuários sincronizados por login.')
+    except Exception:
+        db.session.rollback()
+        ultima_sincronizacao_firebase = agora
+        logger.exception('Não foi possível importar os usuários do Firebase Admin.')
 
 # ==============================================================================
 # LÓGICA DO TIMER OFFLINE E RECUPERAÇÃO DE VIDAS
@@ -103,7 +236,7 @@ def verificar_e_atualizar_vidas(usuario):
         
         # Se a hora atual já ultrapassou a hora limite do bloqueio
         if agora >= usuario.bloqueado_ate:
-            usuario.vidas = 5
+            usuario.vidas = usuario.vidas_maximas or 5
             usuario.bloqueado_ate = None
             db.session.commit()
             print(f"🎉 Vidas restauradas automaticamente para o usuário [{usuario.email}]!")
@@ -115,10 +248,16 @@ def verificar_e_atualizar_vidas(usuario):
 def calcular_barra_progresso(usuario):
     total_licoes = Licao.query.count()
     if total_licoes == 0:
-        total_licoes = 5  # Valor padrão até popular a tabela de lições
-        
-    licoes_concluidas = Progresso.query.filter_by(usuario_id=usuario.id, concluido=True).count()
-    return min(int((licoes_concluidas / total_licoes) * 100), 100)
+        return 0
+
+    licoes_concluidas = (
+        db.session.query(func.count(func.distinct(Progresso.licao_id)))
+        .join(Licao, Licao.id == Progresso.licao_id)
+        .filter(Progresso.usuario_id == usuario.id, Progresso.concluido.is_(True))
+        .scalar()
+        or 0
+    )
+    return min(round((licoes_concluidas / total_licoes) * 100), 100)
 
 
 def usuario_esta_bloqueado(usuario):
@@ -133,21 +272,33 @@ def salvar_usuario_firebase():
     if not dados:
         return jsonify({"status": "erro", "mensagem": "JSON inválido"}), 400
 
-    uid = dados.get('uid')
-    email = dados.get('email')
-    nome = (dados.get('nome') or "Músico Aprendiz").strip()
-    nickname = (dados.get('nickname') or '').strip()
+    try:
+        perfil_firebase = validar_token_firebase(dados.get('id_token'))
+    except ValueError as erro:
+        return jsonify({"status": "erro", "mensagem": str(erro)}), 401
+    except RuntimeError as erro:
+        return jsonify({"status": "erro", "mensagem": str(erro)}), 503
 
-    if not uid or not email:
-        return jsonify({"status": "erro", "mensagem": "Dados obrigatórios ausentes"}), 400
+    uid = perfil_firebase['localId']
+    email = perfil_firebase.get('email')
+    nome = (perfil_firebase.get('displayName') or dados.get('nome') or "Músico Aprendiz").strip()
+    nickname = (dados.get('nickname') or '').strip()
 
     nickname_final = nickname or nome
     if len(nickname_final) < 3:
         return jsonify({"status": "erro", "mensagem": "Nickname deve ter pelo menos 3 caracteres."}), 400
 
-    try:
-        usuario = Usuario.query.get(uid)
+    usuario = Usuario.query.get(uid)
+    nickname_em_uso = Usuario.query.filter(
+        Usuario.nickname == nickname_final,
+        Usuario.id != uid,
+    ).first()
+    if nickname_em_uso:
+        if nickname:
+            return jsonify({"status": "erro", "mensagem": "Este nickname já está em uso."}), 409
+        nickname_final = f'{nickname_final[:42]}-{uid[-6:]}'
 
+    try:
         if not usuario:
             usuario = Usuario(
                 id=uid,
@@ -155,14 +306,22 @@ def salvar_usuario_firebase():
                 email=email,
                 nickname=nickname_final,
                 vidas=5,
+                vidas_maximas=5,
                 xp=0,
                 diamantes=0,
+                avatar_tipo='icone',
+                avatar_valor='fa-solid fa-user',
+                avatares_desbloqueados=json.dumps(AVATARES_DESBLOQUEADOS_PADRAO),
+                itens_json='{}',
+                firebase_ativo=True,
             )
             db.session.add(usuario)
             logger.info("Usuario %s registrado com sucesso no trituno.db via UID.", email)
         else:
             usuario.nome = usuario.nome or nome
-            usuario.email = usuario.email or email
+            usuario.firebase_ativo = True
+            if email and not Usuario.query.filter(Usuario.email == email, Usuario.id != uid).first():
+                usuario.email = email
             if nickname and not usuario.nickname:
                 usuario.nickname = nickname_final
             logger.info("Usuario %s ja tem registro local. Sincronizando sessao.", email)
@@ -210,7 +369,12 @@ def pagina_licoes():
     verificar_e_atualizar_vidas(usuario)
     
     progresso = calcular_barra_progresso(usuario)
-    return render_template('meu-projeto/licoes.html', usuario=usuario, progresso=progresso)
+    return render_template(
+        'meu-projeto/licoes.html',
+        usuario=usuario,
+        progresso=progresso,
+        total_licoes=Licao.query.count(),
+    )
 
 
 @app.route('/introducao')
@@ -233,7 +397,7 @@ def pagina_exercicio1():
     if usuario.vidas == 0:
         return redirect(url_for('pagina_licoes'))
     
-    return render_template('modulo1/exercicio1.html')
+    return render_template('modulo1/exercicio1.html', total_licoes=Licao.query.count())
 
 
 @app.route('/exercicio2')
@@ -246,7 +410,7 @@ def pagina_exercicio2():
     if usuario.vidas == 0:
         return redirect(url_for('pagina_licoes'))
 
-    return render_template('modulo1/exercicio2.html')
+    return render_template('modulo1/exercicio2.html', total_licoes=Licao.query.count())
 
 
 @app.route('/exercicio3')
@@ -259,7 +423,7 @@ def pagina_exercicio3():
     if usuario.vidas == 0:
         return redirect(url_for('pagina_licoes'))
 
-    return render_template('modulo1/exercicio3.html')
+    return render_template('modulo1/exercicio3.html', total_licoes=Licao.query.count())
 
 
 @app.route('/exercicio4')
@@ -272,7 +436,7 @@ def pagina_exercicio4():
     if usuario.vidas == 0:
         return redirect(url_for('pagina_licoes'))
 
-    return render_template('modulo1/exercicio4.html')
+    return render_template('modulo1/exercicio4.html', total_licoes=Licao.query.count())
 
 
 @app.route('/loja')
@@ -282,7 +446,13 @@ def pagina_loja():
         return redirect(url_for('pagina_login'))
     
     progresso = calcular_barra_progresso(usuario)
-    return render_template('meu-projeto/loja.html', usuario=usuario, progresso=progresso)
+    inventario = json.loads(usuario.itens_json or '{}')
+    return render_template(
+        'meu-projeto/loja.html',
+        usuario=usuario,
+        progresso=progresso,
+        inventario=inventario,
+    )
 
 
 @app.route('/ranking')
@@ -292,7 +462,18 @@ def pagina_ranking():
         return redirect(url_for('pagina_login'))
     
     progresso = calcular_barra_progresso(usuario)
-    return render_template('meu-projeto/ranking.html', usuario=usuario, progresso=progresso)
+    sincronizar_diretorio_firebase()
+    ranking = (
+        Usuario.query.filter_by(firebase_ativo=True)
+        .order_by(Usuario.xp.desc(), Usuario.nickname.asc())
+        .all()
+    )
+    return render_template(
+        'meu-projeto/ranking.html',
+        usuario=usuario,
+        progresso=progresso,
+        ranking=ranking,
+    )
 
 
 @app.route('/configuracoes')
@@ -308,7 +489,83 @@ def pagina_configuracoes():
         usuario=usuario,
         progresso=progresso,
         licoes_concluidas=licoes_concluidas,
+        avatares=AVATARES_DISPONIVEIS,
+        avatares_desbloqueados=json.loads(usuario.avatares_desbloqueados or '[]'),
     )
+
+
+@app.route('/api/avatar', methods=['POST'])
+def atualizar_avatar():
+    usuario = obter_usuario_sessao()
+    if not usuario:
+        return jsonify({'status': 'erro', 'mensagem': 'Sessão expirada.'}), 401
+
+    dados = request.get_json(silent=True)
+    if not isinstance(dados, dict):
+        return jsonify({'status': 'erro', 'mensagem': 'Dados inválidos.'}), 400
+
+    tipo = dados.get('tipo')
+    valor = dados.get('valor')
+    avatar = next(
+        (item for item in AVATARES_DISPONIVEIS if item['tipo'] == tipo and item['valor'] == valor),
+        None,
+    )
+    if not avatar:
+        return jsonify({'status': 'erro', 'mensagem': 'Avatar inválido.'}), 400
+
+    chave_avatar = f'{tipo}:{valor}'
+    avatares_desbloqueados = json.loads(usuario.avatares_desbloqueados or '[]')
+    if chave_avatar not in avatares_desbloqueados:
+        return jsonify({'status': 'erro', 'mensagem': 'Este avatar ainda não foi desbloqueado.'}), 403
+
+    usuario.avatar_tipo = tipo
+    usuario.avatar_valor = valor
+    db.session.commit()
+    return jsonify({'status': 'sucesso', 'tipo': tipo, 'valor': valor})
+
+
+@app.route('/api/loja/comprar', methods=['POST'])
+def comprar_item_loja():
+    usuario = obter_usuario_sessao()
+    if not usuario:
+        return jsonify({'status': 'erro', 'mensagem': 'Sessão expirada.'}), 401
+
+    dados = request.get_json(silent=True)
+    item = dados.get('item') if isinstance(dados, dict) else None
+    precos = {'vida': 25, 'protecao_ofensiva': 100, 'coracao_cristal': 750}
+    if item not in precos:
+        return jsonify({'status': 'erro', 'mensagem': 'Item indisponível.'}), 400
+    if usuario.diamantes < precos[item]:
+        return jsonify({'status': 'erro', 'mensagem': 'Diamantes insuficientes.'}), 400
+    if item == 'vida' and usuario.vidas >= (usuario.vidas_maximas or 5):
+        return jsonify({'status': 'erro', 'mensagem': 'Você já está com o máximo de vidas.'}), 400
+    if item == 'coracao_cristal' and (usuario.vidas_maximas or 5) >= 10:
+        return jsonify({'status': 'erro', 'mensagem': 'O limite máximo de vidas já foi desbloqueado.'}), 400
+
+    try:
+        usuario.diamantes -= precos[item]
+        inventario = json.loads(usuario.itens_json or '{}')
+        if item == 'vida':
+            usuario.vidas += 1
+        elif item == 'protecao_ofensiva':
+            inventario[item] = inventario.get(item, 0) + 1
+        elif item == 'coracao_cristal':
+            usuario.vidas_maximas = 10
+            inventario[item] = True
+        usuario.itens_json = json.dumps(inventario)
+        db.session.commit()
+        return jsonify({
+            'status': 'sucesso',
+            'mensagem': 'Compra realizada com sucesso.',
+            'diamantes': usuario.diamantes,
+            'vidas': usuario.vidas,
+            'vidas_maximas': usuario.vidas_maximas,
+            'inventario': inventario,
+        })
+    except Exception:
+        db.session.rollback()
+        logger.exception('Falha ao processar compra do usuário %s', usuario.id)
+        return jsonify({'status': 'erro', 'mensagem': 'Não foi possível concluir a compra.'}), 500
 
 
 @app.route('/api/atualizar-perfil', methods=['POST'])
@@ -446,7 +703,12 @@ def tempo_bloqueio():
             "vidas": 0
         })
 
-    return jsonify({"bloqueado": False, "segundos_restantes": 0, "vidas": 5})
+    return jsonify({
+        "bloqueado": False,
+        "segundos_restantes": 0,
+        "vidas": usuario.vidas,
+        "vidas_maximas": usuario.vidas_maximas or 5,
+    })
 
 @app.route('/api/concluir-licao', methods=['POST'])
 def concluir_licao():
@@ -515,19 +777,49 @@ def perder_vida():
         if usuario.vidas == 0:
             usuario.bloqueado_ate = datetime.utcnow() + timedelta(hours=2)
         db.session.commit()
-        return jsonify({"status": "sucesso", "vidas_restantes": usuario.vidas}), 200
+        return jsonify({
+            "status": "sucesso",
+            "vidas_restantes": usuario.vidas,
+            "vidas_maximas": usuario.vidas_maximas or 5,
+        }), 200
 
-    return jsonify({"status": "bloqueado", "mensagem": "Usuário sem vidas restantes.", "vidas_restantes": 0}), 400
+    return jsonify({
+        "status": "bloqueado",
+        "mensagem": "Usuário sem vidas restantes.",
+        "vidas_restantes": 0,
+        "vidas_maximas": usuario.vidas_maximas or 5,
+    }), 400
 
 
 def garantir_colunas_usuario():
     colunas = [coluna['name'] for coluna in db.inspect(db.engine).get_columns('usuario')]
-    if 'nickname' not in colunas:
-        with db.engine.begin() as conn:
-            conn.execute(text('ALTER TABLE usuario ADD COLUMN nickname VARCHAR(50)'))
-    if 'ultima_restauracao_vidas' not in colunas:
-        with db.engine.begin() as conn:
-            conn.execute(text('ALTER TABLE usuario ADD COLUMN ultima_restauracao_vidas DATETIME'))
+    novas_colunas = {
+        'nickname': 'VARCHAR(50)',
+        'ultima_restauracao_vidas': 'DATETIME',
+        'vidas_maximas': 'INTEGER DEFAULT 5',
+        'avatar_tipo': "VARCHAR(10) DEFAULT 'icone'",
+        'avatar_valor': "VARCHAR(255) DEFAULT 'fa-solid fa-user'",
+        'avatares_desbloqueados': 'TEXT',
+        'itens_json': 'TEXT',
+        'firebase_ativo': 'BOOLEAN DEFAULT 1',
+    }
+    with db.engine.begin() as conn:
+        for nome, definicao in novas_colunas.items():
+            if nome not in colunas:
+                conn.execute(text(f'ALTER TABLE usuario ADD COLUMN {nome} {definicao}'))
+
+    for usuario in Usuario.query.all():
+        if not usuario.vidas_maximas:
+            usuario.vidas_maximas = 5
+        if not usuario.avatar_tipo:
+            usuario.avatar_tipo = 'icone'
+        if not usuario.avatar_valor:
+            usuario.avatar_valor = 'fa-solid fa-user'
+        if not usuario.avatares_desbloqueados:
+            usuario.avatares_desbloqueados = json.dumps(AVATARES_DESBLOQUEADOS_PADRAO)
+        if not usuario.itens_json:
+            usuario.itens_json = '{}'
+    db.session.commit()
 
 
 def garantir_licoes_iniciais():

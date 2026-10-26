@@ -449,3 +449,19 @@
 .gamification-container {
     width: 100%;
 }
+
+.shop-feedback {
+    min-height: 1.5em;
+    margin: -18px 0 18px;
+    font-weight: 700;
+    color: #287b42;
+}
+
+.shop-feedback.is-error {
+    color: #b42318;
+}
+
+.shop-item-card small {
+    color: var(--text-secondary);
+    font-weight: 700;
+}

@@ -79,8 +79,31 @@
         </section>
 
         <footer class="footer-aula">
-            <button class="btn-continuar" onclick="location.href='/exercicio1'">CONTINUAR</button>
+            <button class="btn-continuar" id="btnIniciarExercicios">CONTINUAR</button>
         </footer>
     </main>
+    <script>
+        document.getElementById('btnIniciarExercicios').addEventListener('click', async (event) => {
+            const button = event.currentTarget;
+            button.disabled = true;
+            try {
+                const response = await fetch('/api/concluir-licao', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ licao_id: 1 })
+                });
+                const result = await response.json();
+                if (!response.ok || result.status !== 'sucesso') {
+                    throw new Error(result.mensagem || 'Não foi possível salvar o progresso.');
+                }
+                localStorage.setItem('trituno_licao_1', 'concluida');
+                localStorage.setItem('progress-bar', String(result.progresso));
+                window.location.href = '/exercicio1';
+            } catch (error) {
+                alert(error.message || 'Não foi possível salvar o progresso.');
+                button.disabled = false;
+            }
+        });
+    </script>
 </body>
 </html>

@@ -125,18 +125,19 @@
 
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, senha);
-      const uid = userCredential.user.uid;
-
-      await fetch('/api/salvar-usuario-firebase', {
+      const resposta = await fetch('/api/salvar-usuario-firebase', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          uid,
-          email,
+          id_token: await userCredential.user.getIdToken(),
           nome: nickname,
           nickname
         })
       });
+      const resultado = await resposta.json();
+      if (!resposta.ok || resultado.status !== 'sucesso') {
+        throw new Error(resultado.mensagem || 'Não foi possível sincronizar sua conta.');
+      }
 
       window.location.href = '/licoes';
     } catch (error) {
@@ -144,7 +145,7 @@
       if (error.code === 'auth/email-already-in-use') {
         campoErro.textContent = 'Este e-mail já está em uso.';
       } else {
-        campoErro.textContent = 'Erro ao cadastrar. Tente novamente.';
+        campoErro.textContent = error.message || 'Erro ao cadastrar. Tente novamente.';
       }
       campoErro.style.display = 'block';
     }

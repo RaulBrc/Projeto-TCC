@@ -212,6 +212,19 @@
     background-color: #f0f4f8;
 }
 
+.rank-avatar-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--primary);
+    font-size: 1.35rem;
+}
+
+.ranking-empty {
+    padding: 24px 35px;
+    color: var(--text-secondary);
+}
+
 /* Nome do competidor */
 .rank-name {
     flex: 1;

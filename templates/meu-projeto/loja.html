@@ -39,7 +39,7 @@
     <!-- Bloco das Vidas -->
     <div class="status-item vidas">
         <i class="fa-solid fa-heart"></i> 
-        <span id="contador-vidas">{{ usuario.vidas }}/5</span>
+        <span id="contador-vidas">{{ usuario.vidas }}/{{ usuario.vidas_maximas or 5 }}</span>
     </div>
     
     <!-- Bloco dos Diamantes -->
@@ -59,9 +59,10 @@
             <div class="shop-balance-card auth-box">
                 <h2>Loja do Trituno</h2>
                 <div class="balance-badge">
-                    <i class="fas fa-gem icon-gem"></i> <span>350 Cristais</span>
+                    <i class="fas fa-gem icon-gem"></i> <span id="shopBalance">{{ usuario.diamantes }}</span> Cristais
                 </div>
             </div>
+            <p class="shop-feedback" id="shopFeedback" role="status" aria-live="polite"></p>
 
             <div class="shop-grid">
                 
@@ -74,8 +75,8 @@
                         <h3>Trituno Premium</h3>
                         <p>Estude teoria musical sem interrupções! Ganhe <strong>Vidas Ilimitadas <i class="fas fa-heart"></i> ∞</strong> e remova 100% dos anúncios do sistema.</p>
                     </div>
-                    <button class="btn-shop-buy btn-premium">
-                        R$ 19,90/MÊS
+                    <button class="btn-shop-buy btn-premium" disabled>
+                        Pagamento indisponível
                     </button>
                 </div>
 
@@ -85,9 +86,10 @@
                     </div>
                     <div class="shop-item-info">
                         <h3>Bloqueio de Ofensiva</h3>
-                        <p>Permite que sua ofensiva fique intacta se você perder um dia de lições.</p>
+                        <p>Guarda uma proteção de ofensiva no seu inventário.</p>
+                        <small id="protecaoDisponivel">Disponíveis: {{ inventario.get('protecao_ofensiva', 0) }}</small>
                     </div>
-                    <button class="btn-shop-buy">
+                    <button class="btn-shop-buy" data-shop-item="protecao_ofensiva">
                         <i class="fas fa-gem"></i> 100
                     </button>
                 </div>
@@ -100,7 +102,7 @@
                         <h3>Coração</h3>
                         <p>ganhe mais vidas para continuar jogando.</p>
                     </div>
-                    <button class="btn-shop-buy">
+                    <button class="btn-shop-buy" data-shop-item="vida">
                         <i class="fas fa-gem"></i> 25
                     </button>
                 </div>
@@ -113,7 +115,7 @@
                         <h3>Coração de cristal</h3>
                         <p>aumente seu limite de 5 vidas para 10 permanentemente.</p>
                     </div>
-                    <button class="btn-shop-buy">
+                    <button class="btn-shop-buy" data-shop-item="coracao_cristal" {% if (usuario.vidas_maximas or 5) >= 10 %}disabled{% endif %}>
                         <i class="fas fa-gem"></i> 750
                     </button>
                 </div>
@@ -126,8 +128,8 @@
                         <h3>Dobro ou Nada</h3>
                         <p>Aposte 50 cristais e ganhe 100 se conseguir manter sua ofensiva por 7 dias.</p>
                     </div>
-                    <button class="btn-shop-buy">
-                        <i class="fas fa-gem"></i> 50
+                    <button class="btn-shop-buy" disabled>
+                        Em breve
                     </button>
                 </div>
 
@@ -140,7 +142,7 @@
                         <p>Um item cosmético exclusivo para exibir no seu perfil e rankings.</p>
                     </div>
                     <button class="btn-shop-buy status-owned" disabled>
-                        Adquirido
+                        Indisponível
                     </button>
                 </div>
 
@@ -149,5 +151,6 @@
     </main>
 
 <script src="/static/js/licoes.js"></script>
+<script src="/static/js/loja.js"></script>
 </body>
 </html>

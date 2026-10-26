@@ -45,7 +45,7 @@
     <!-- Bloco das Vidas -->
     <div class="status-item vidas">
         <i class="fa-solid fa-heart"></i> 
-        <span id="contador-vidas">{{ usuario.vidas }}/5</span>
+        <span id="contador-vidas">{{ usuario.vidas }}/{{ usuario.vidas_maximas or 5 }}</span>
     </div>
     
     <!-- Bloco dos Diamantes -->
@@ -67,51 +67,31 @@
             <div class="ranking-header-card auth-box">
                 <i class="fas fa-trophy trophy-main"></i>
                 <h2>Liga dos Trítonos</h2>
-                <p>Mostre seu ritmo! O ranking é baseado nos seus dias de Ofensiva.</p>
+                <p>Classificação global ordenada pelo XP total.</p>
             </div>
 
             <!-- Lista de Competidores -->
             <div class="ranking-list auth-box">
                 
-                <!-- 1º Lugar - Medalha de Ouro -->
-                <div class="ranking-item rank-1">
-                    <div class="rank-position"><i class="fas fa-medal gold"></i></div>
-                    <img src="https://api.dicebear.com/7.x/bottts/svg?seed=Beatriz" alt="Avatar" class="rank-avatar">
-                    <span class="rank-name">Beatriz Notas</span>
-                    <span class="rank-score">15 <i class="fas fa-fire"></i></span>
+                {% for participante in ranking %}
+                <div class="ranking-item{% if participante.id == usuario.id %} rank-current{% endif %}">
+                    <div class="rank-position">
+                        {% if loop.index == 1 %}<i class="fas fa-medal gold" aria-label="1º lugar"></i>
+                        {% elif loop.index == 2 %}<i class="fas fa-medal silver" aria-label="2º lugar"></i>
+                        {% elif loop.index == 3 %}<i class="fas fa-medal bronze" aria-label="3º lugar"></i>
+                        {% else %}{{ loop.index }}{% endif %}
+                    </div>
+                    {% if participante.avatar_tipo == 'imagem' %}
+                    <img src="{{ participante.avatar_valor }}" alt="Avatar de {{ participante.nickname or participante.nome or 'Músico Aprendiz' }}" class="rank-avatar">
+                    {% else %}
+                    <span class="rank-avatar rank-avatar-icon" aria-hidden="true"><i class="{{ participante.avatar_valor }}"></i></span>
+                    {% endif %}
+                    <span class="rank-name">{{ participante.nickname or participante.nome or 'Músico Aprendiz' }}</span>
+                    <span class="rank-score">{{ participante.xp or 0 }} <i class="fas fa-bolt" aria-label="XP"></i></span>
                 </div>
-
-                <!-- 2º Lugar - Medalha de Prata -->
-                <div class="ranking-item rank-2">
-                    <div class="rank-position"><i class="fas fa-medal silver"></i></div>
-                    <img src="https://api.dicebear.com/7.x/bottts/svg?seed=Carlos" alt="Avatar" class="rank-avatar">
-                    <span class="rank-name">Carlos Ritmo</span>
-                    <span class="rank-score">12 <i class="fas fa-fire"></i></span>
-                </div>
-
-                <!-- 3º Lugar - Medalha de Bronze -->
-                <div class="ranking-item rank-3">
-                    <div class="rank-position"><i class="fas fa-medal bronze"></i></div>
-                    <img src="https://api.dicebear.com/7.x/bottts/svg?seed=Jones" alt="Avatar" class="rank-avatar">
-                    <span class="rank-name">Maestro Jones</span>
-                    <span class="rank-score">9 <i class="fas fa-fire"></i></span>
-                </div>
-
-                <!-- 4º Lugar - VOCÊ (Destacado em Verde Claro) -->
-                <div class="ranking-item rank-current">
-                    <div class="rank-position">4</div>
-                    <img src="https://api.dicebear.com/7.x/bottts/svg?seed=trituno" alt="Avatar" class="rank-avatar">
-                    <span class="rank-name">Você (Músico Aprendiz)</span>
-                    <span class="rank-score">7 <i class="fas fa-fire"></i></span>
-                </div>
-
-                <!-- 5º Lugar - Padrão -->
-                <div class="ranking-item">
-                    <div class="rank-position">5</div>
-                    <img src="https://api.dicebear.com/7.x/bottts/svg?seed=Davi" alt="Avatar" class="rank-avatar">
-                    <span class="rank-name">Davi Solfejo</span>
-                    <span class="rank-score">3 <i class="fas fa-fire"></i></span>
-                </div>
+                {% else %}
+                <p class="ranking-empty">Ainda não há usuários no ranking.</p>
+                {% endfor %}
 
             </div>
         </div>
